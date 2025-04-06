@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-// Import screen yang diperlukan - sesuaikan dengan nama file Anda yang sebenarnya
+import 'package:provider/provider.dart';
+
+// Import provider
+import '../providers/cart_provider.dart';
+
+// Import screen yang diperlukan
 import 'home_screen.dart';  
 import 'news_screen.dart';
 import 'transaction_screen.dart';
 import 'setting_screen.dart';
-import '../widgets/navigationbar.dart'; // Sesuaikan dengan lokasi file navigationbar.dart
+import '../widgets/navigationbar.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({Key? key}) : super(key: key);
@@ -20,7 +25,7 @@ class _MainScreenState extends State<MainScreen> {
   // Daftar halaman yang akan ditampilkan
   final List<Widget> _screens = [
     const HomeScreen(),       // Index 0
-    const NewsScreen(),       // Index 1
+    const NewsScreen(showBackButton: false), // Index 1 - tanpa tombol back
     const TransactionScreen(), // Index 2
     const SettingScreen(),    // Index 3
   ];
@@ -38,14 +43,47 @@ class _MainScreenState extends State<MainScreen> {
         index: _selectedIndex,
         children: _screens,
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.pushNamed(context, '/cart');
+      floatingActionButton: Consumer<CartProvider>(
+        builder: (context, cartProvider, child) {
+          return Stack(
+            children: [
+              FloatingActionButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/cart');
+                },
+                backgroundColor: Colors.orange,
+                child: const Icon(Icons.shopping_cart),
+                elevation: 6,
+                shape: const CircleBorder(),
+              ),
+              if (cartProvider.itemCount > 0)
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  child: Container(
+                    padding: const EdgeInsets.all(2),
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    constraints: const BoxConstraints(
+                      minWidth: 20,
+                      minHeight: 20,
+                    ),
+                    child: Text(
+                      '${cartProvider.itemCount}',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+            ],
+          );
         },
-        backgroundColor: Colors.orange,
-        child: const Icon(Icons.shopping_cart),
-        elevation: 6,
-        shape: const CircleBorder(),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: BottomAppBar(
@@ -87,7 +125,7 @@ class _MainScreenState extends State<MainScreen> {
               ),
               
               // Ruang untuk FAB
-              SizedBox(width: 60),
+              const SizedBox(width: 60),
               
               // Dua item kanan
               Expanded(
@@ -99,7 +137,7 @@ class _MainScreenState extends State<MainScreen> {
                         onTap: () => _onNavItemTapped(2),
                         child: NavItem(
                           icon: Icons.receipt_long, 
-                          label: "Trx",
+                          label: "Orders",
                           selected: _selectedIndex == 2,
                         ),
                       ),

@@ -45,5 +45,11 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	
+	<!-- Tambahkan izin berikut -->
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Izin dibutuhkan untuk memilih foto profil dari galeri</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Izin dibutuhkan untuk mengambil foto profil</string>
 </dict>
 </plist>

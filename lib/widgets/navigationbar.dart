@@ -68,7 +68,7 @@ class CustomBottomNavBar extends StatelessWidget {
                       },
                       child: NavItem(
                         icon: Icons.receipt_long, 
-                        label: "Trx", // Disingkat
+                        label: "Orders", // Disingkat
                         selected: selectedIndex == 2,
                       ),
                     ),

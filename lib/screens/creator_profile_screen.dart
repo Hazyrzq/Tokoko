@@ -145,7 +145,6 @@ class CreatorProfileScreen extends StatelessWidget {
                 'Achmad Haikal Maali',
                 '2307413005',
                 'TI 4 MSU',
-                'QA Engineer',
                 'assets/images/HAIKAL.png',
                 primaryColor,
                 [Colors.blue[400]!, Colors.blue[700]!],
@@ -159,7 +158,6 @@ class CreatorProfileScreen extends StatelessWidget {
                 'Hafiz Rizqi Secario',
                 '2307413017',
                 'TI 4 MSU',
-                'Mobile Developer',
                 'assets/images/APIS.png',
                 primaryColor,
                 [Colors.purple[400]!, Colors.purple[700]!],
@@ -173,7 +171,6 @@ class CreatorProfileScreen extends StatelessWidget {
                 'Yelena Theresia Sibuea',
                 '2307413002',
                 'TI 4 MSU',
-                'UI/UX Designer',
                 'assets/images/YELENA.png',
                 primaryColor,
                 [Colors.orange[400]!, Colors.orange[700]!],
@@ -227,61 +224,6 @@ class CreatorProfileScreen extends StatelessWidget {
                 ),
               ),
               
-              const SizedBox(height: 30),
-              
-              // Contact us button
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 30),
-                height: 50,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  gradient: LinearGradient(
-                    colors: [primaryColor, primaryColor.withOpacity(0.8)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: primaryColor.withOpacity(0.3),
-                      blurRadius: 10,
-                      spreadRadius: 0,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: ElevatedButton(
-                  onPressed: () {
-                    // Handle contact us
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.transparent,
-                    shadowColor: Colors.transparent,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.email_rounded,
-                        color: Colors.white,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 10),
-                      Text(
-                        'Contact Our Team',
-                        style: GoogleFonts.poppins(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 15,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              
               const SizedBox(height: 20),
             ],
           ),
@@ -295,7 +237,6 @@ class CreatorProfileScreen extends StatelessWidget {
     String name,
     String nim,
     String className,
-    String role,
     String imagePath,
     Color primaryColor,
     List<Color> gradientColors,
@@ -303,7 +244,7 @@ class CreatorProfileScreen extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
@@ -324,10 +265,7 @@ class CreatorProfileScreen extends StatelessWidget {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(20),
-                topRight: Radius.circular(20),
-              ),
+              borderRadius: BorderRadius.circular(16),
             ),
             child: Row(
               children: [
@@ -404,82 +342,7 @@ class CreatorProfileScreen extends StatelessWidget {
               ],
             ),
           ),
-          
-          // Bottom part with role and social media
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                // Role
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: primaryColor.withOpacity(0.1),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        _getRoleIcon(role),
-                        color: primaryColor,
-                        size: 16,
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Text(
-                      role,
-                      style: GoogleFonts.poppins(
-                        color: Colors.black87,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-                
-                // Social media icons
-                Row(
-                  children: [
-                    _buildSocialIcon(Icons.language_rounded, primaryColor),
-                    const SizedBox(width: 12),
-                    _buildSocialIcon(Icons.alternate_email_rounded, primaryColor),
-                    const SizedBox(width: 12),
-                    _buildSocialIcon(Icons.phone_rounded, primaryColor),
-                  ],
-                ),
-              ],
-            ),
-          ),
         ],
-      ),
-    );
-  }
-  
-  IconData _getRoleIcon(String role) {
-    switch (role.toLowerCase()) {
-      case 'mobile developer':
-        return Icons.smartphone_rounded;
-      case 'ui/ux designer':
-        return Icons.design_services_rounded;
-      case 'qa engineer':
-        return Icons.verified_rounded;
-      default:
-        return Icons.work_rounded;
-    }
-  }
-  
-  Widget _buildSocialIcon(IconData icon, Color primaryColor) {
-    return Container(
-      padding: const EdgeInsets.all(6),
-      decoration: BoxDecoration(
-        color: Colors.grey[100],
-        shape: BoxShape.circle,
-      ),
-      child: Icon(
-        icon,
-        color: primaryColor,
-        size: 16,
       ),
     );
   }

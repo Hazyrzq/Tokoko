@@ -180,53 +180,6 @@ class AboutScreen extends StatelessWidget {
               ),
               const SizedBox(height: 30),
               
-              // Team
-              _buildSectionTitle('Our Team', primaryColor),
-              const SizedBox(height: 12),
-              
-              // Team members
-              _buildModernTeamItem(
-                'Achmad Haikal Maali', 
-                '2307413005', 
-                'TI 4 MSU',
-                'assets/images/HAIKAL.png',
-                primaryColor
-              ),
-              const SizedBox(height: 16),
-              _buildModernTeamItem(
-                'Hafiz Rizqi Secario', 
-                '2307413017', 
-                'TI 4 MSU',
-                'assets/images/APIS.png',
-                primaryColor
-              ),
-              const SizedBox(height: 16),
-              _buildModernTeamItem(
-                'Yelena Theresia Sibuea', 
-                '2307413002', 
-                'TI 4 MSU',
-                'assets/images/YELENA.png',
-                primaryColor
-              ),
-              
-              const SizedBox(height: 36),
-              
-              // Social media icons
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _buildSocialButton(Icons.language_rounded, primaryColor),
-                  const SizedBox(width: 16),
-                  _buildSocialButton(Icons.facebook_rounded, primaryColor),
-                  const SizedBox(width: 16),
-                  _buildSocialButton(Icons.alternate_email_rounded, primaryColor),
-                  const SizedBox(width: 16),
-                  _buildSocialButton(Icons.phone_rounded, primaryColor),
-                ],
-              ),
-              
-              const SizedBox(height: 24),
-              
               // Copyright
               Center(
                 child: Text(

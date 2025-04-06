@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'food_category_screen.dart';
 import 'news_screen.dart';
+import 'all_categories_screen.dart';
+import 'ramadhan_products_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -120,35 +122,49 @@ class _HomeScreenState extends State<HomeScreen> {
                         ],
                       ),
                     ),
-                    Stack(
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            color: secondaryColor,
-                            shape: BoxShape.circle,
-                          ),
-                          child: IconButton(
-                            icon: Icon(Icons.notifications_none_rounded, color: primaryColor),
-                            iconSize: isSmallScreen ? 22 : 24,
-                            onPressed: () {
-                              // Navigator.push to notification page if needed
-                            },
-                          ),
-                        ),
-                        Positioned(
-                          right: 10,
-                          top: 10,
-                          child: Container(
-                            height: 8,
-                            width: 8,
-                            decoration: BoxDecoration(
-                              color: Colors.red,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                    // Di HomeScreen.dart, gunakan kode ini untuk icon notifikasi:
+
+Stack(
+  children: [
+    Container(
+      decoration: BoxDecoration(
+        color: secondaryColor,
+        shape: BoxShape.circle,
+      ),
+      child: IconButton(
+        icon: Icon(Icons.notifications_none_rounded, color: primaryColor),
+        iconSize: isSmallScreen ? 22 : 24,
+        onPressed: () {
+          // Push new instance of NewsScreen dengan showBackButton = true
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => const NewsScreen(showBackButton: true),
+            ),
+          );
+        },
+      ),
+    ),
+    Positioned(
+      right: 6,
+      top: 6,
+      child: Container(
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: Colors.red,
+          shape: BoxShape.circle,
+        ),
+        child: Text(
+          '${NewsScreen.notificationCount}',
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 8,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    ),
+  ],
+)
                   ],
                 ),
               ),
@@ -321,7 +337,14 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                     TextButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const AllCategoriesScreen(),
+                          ),
+                        );
+                      },
                       style: TextButton.styleFrom(
                         foregroundColor: primaryColor,
                         textStyle: const TextStyle(
@@ -331,7 +354,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       child: Row(
                         children: [
-                          const Text('View All'),
+                          const Text('Lihat Semua'),
                           const SizedBox(width: 4),
                           Icon(Icons.arrow_forward_ios, size: 12, color: primaryColor),
                         ],
@@ -419,7 +442,14 @@ class _HomeScreenState extends State<HomeScreen> {
                           ],
                         ),
                         TextButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const RamadhanProductsScreen(),
+                              ),
+                            );
+                          },
                           style: TextButton.styleFrom(
                             foregroundColor: accentColor,
                             textStyle: const TextStyle(
@@ -429,7 +459,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           child: Row(
                             children: [
-                              const Text('View All'),
+                              const Text('Lihat Semua'),
                               const SizedBox(width: 4),
                               Icon(Icons.arrow_forward_ios, size: 12, color: accentColor),
                             ],
@@ -489,8 +519,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
-      // Hapus floatingActionButton
-      // Hapus bottomNavigationBar
+      // Bottom navigation bar and floating action button would go here in a real app
     );
   }
 

@@ -1,8 +1,11 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'food_category_screen.dart';
 import 'news_screen.dart';
-import 'all_categories_screen.dart'; // Import untuk AllCategoriesScreen
-import 'ramadhan_products_screen.dart'; // Import untuk RamadhanProductsScreen
+import 'all_categories_screen.dart';
+import 'ramadhan_products_screen.dart';
+import '../providers/profile_provider.dart';  // Import the profile provider
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -53,6 +56,9 @@ class _HomeScreenState extends State<HomeScreen> {
     final secondaryColor = const Color(0xFFE3F2FD);
     final accentColor = Colors.amber;
 
+    // Access the profile provider
+    final profileProvider = Provider.of<ProfileProvider>(context);
+
     return Scaffold(
       backgroundColor: Colors.grey[50],
       body: SafeArea(
@@ -81,20 +87,17 @@ class _HomeScreenState extends State<HomeScreen> {
                     Expanded(
                       child: Row(
                         children: [
+                          // Profile Image from ProfileProvider
                           Container(
                             padding: const EdgeInsets.all(2),
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               border: Border.all(color: primaryColor, width: 2),
                             ),
-                            child: CircleAvatar(
-                              radius: isSmallScreen ? 18 : 22,
-                              backgroundColor: secondaryColor,
-                              child: Icon(
-                                Icons.person,
-                                color: primaryColor,
-                                size: isSmallScreen ? 18 : 22,
-                              ),
+                            child: _buildProfileImage(
+                              profileProvider, 
+                              isSmallScreen ? 18 : 22,
+                              primaryColor
                             ),
                           ),
                           SizedBox(width: isSmallScreen ? 10 : 14),
@@ -103,7 +106,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Halo, Guis!',
+                                  'Halo, ${profileProvider.nama}!',
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: isSmallScreen ? 14 : 16,
@@ -126,7 +129,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ],
                       ),
                     ),
-                    // Replace the existing notification Stack in the left code with this updated one:
+                    // Notification icon with counter
                     Stack(
                       children: [
                         Container(
@@ -141,13 +144,11 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             iconSize: isSmallScreen ? 22 : 24,
                             onPressed: () {
-                              // Push new instance of NewsScreen dengan showBackButton = true
                               Navigator.of(context).push(
                                 MaterialPageRoute(
-                                  builder:
-                                      (context) => const NewsScreen(
-                                        showBackButton: true,
-                                      ),
+                                  builder: (context) => const NewsScreen(
+                                    showBackButton: true,
+                                  ),
                                 ),
                               );
                             },
@@ -564,9 +565,60 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
-      // Hapus floatingActionButton
-      // Hapus bottomNavigationBar
     );
+  }
+
+  // Method untuk membangun gambar profil
+  Widget _buildProfileImage(ProfileProvider profileProvider, double radius, Color primaryColor) {
+    try {
+      if (profileProvider.fotoProfilPath.isEmpty) {
+        // Jika tidak ada foto profil, tampilkan avatar default
+        return CircleAvatar(
+          radius: radius,
+          backgroundColor: const Color(0xFFE3F2FD),
+          child: Icon(
+            Icons.person,
+            color: primaryColor,
+            size: radius,
+          ),
+        );
+      } else if (profileProvider.fotoProfilPath.startsWith('assets/')) {
+        // Jika foto dari asset
+        return CircleAvatar(
+          radius: radius,
+          backgroundColor: const Color(0xFFE3F2FD),
+          backgroundImage: AssetImage(profileProvider.fotoProfilPath),
+          onBackgroundImageError: (_, __) {
+            // Error handler tidak mengembalikan nilai, hanya untuk menangani error
+          },
+        );
+      } else {
+        // Jika dari file lokal
+        return CircleAvatar(
+          radius: radius,
+          backgroundColor: const Color(0xFFE3F2FD),
+          backgroundImage: FileImage(File(profileProvider.fotoProfilPath)),
+          onBackgroundImageError: (_, __) {
+            // Error handler tidak mengembalikan nilai, hanya untuk menangani error
+          },
+        );
+      }
+    } catch (e) {
+      // Jika terjadi error, tampilkan inisial
+      return CircleAvatar(
+        radius: radius,
+        backgroundColor: const Color(0xFFE3F2FD),
+        child: Text(
+          profileProvider.nama.isNotEmpty ? profileProvider.nama[0].toUpperCase() : "?",
+          style: TextStyle(
+            color: primaryColor,
+            fontWeight: FontWeight.bold,
+            fontSize: radius,
+          ),
+        ),
+      );
+    }
+  }
   }
 
   Widget _buildModernCategoryItem(
@@ -777,4 +829,3 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-}

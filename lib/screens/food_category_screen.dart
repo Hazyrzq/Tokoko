@@ -239,23 +239,6 @@ class _FoodCategoryScreenState extends State<FoodCategoryScreen> {
                     'All Products',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
-                  DropdownButton<String>(
-                    items:
-                        [
-                          'Popular',
-                          'Newest',
-                          'Price: Low to High',
-                          'Price: High to Low',
-                        ].map((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
-                    onChanged: (_) {},
-                    hint: const Text('Sort by'),
-                    underline: Container(),
-                  ),
                 ],
               ),
             ),

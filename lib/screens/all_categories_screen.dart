@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:project/screens/drinks_category_screen.dart';
+import 'package:project/screens/fruit_category_screen.dart';
+import 'package:project/screens/kitchen_ingredients_category_screen.dart';
+import 'package:project/screens/personalcare_category_screen.dart';
+import '../widgets/cart_badge.dart';
 import 'food_category_screen.dart';
 import 'cart_screen.dart';
+import 'news_screen.dart';
 
 class AllCategoriesScreen extends StatelessWidget {
   const AllCategoriesScreen({Key? key}) : super(key: key);
@@ -14,31 +20,31 @@ class AllCategoriesScreen extends StatelessWidget {
 
     // Definisi warna utama
     final primaryColor = const Color(0xFF2D7BEE);
-    final secondaryColor = const Color(0xFFE3F2FD);
     
     return Scaffold(
       backgroundColor: Colors.white, // Background putih untuk seluruh layar
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Semua Kategori',
           style: TextStyle(
             fontWeight: FontWeight.w600,
             fontSize: 18,
-            color: Colors.black87,
           ),
         ),
         elevation: 0,
         centerTitle: true,
-        backgroundColor: Colors.white,
+        backgroundColor: primaryColor,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios, size: 20, color: primaryColor),
+          icon: const Icon(Icons.arrow_back_ios, size: 20),
           onPressed: () {
             Navigator.pop(context);
           },
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.shopping_cart_outlined, color: primaryColor),
+            icon: CartBadge(
+              child: const Icon(Icons.shopping_cart_outlined),
+            ),
             onPressed: () {
               Navigator.push(
                 context,
@@ -114,64 +120,73 @@ class AllCategoriesScreen extends StatelessWidget {
                             primaryColor,
                           ),
                         ),
-                        
-                        // Kategori Kitchen & Ingredients
-                        _buildCategoryItem(
-                          'Kitchen & Ingredients',
-                          'assets/images/dapur.png',
-                          Colors.orange[100]!,
-                          Colors.orange[800]!,
+
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const DrinksCategoryScreen(),
+                              ),
+                            );
+                          },
+                          child: _buildCategoryItem(
+                            'Drinks',
+                            'assets/images/minum.png',
+                            Colors.blue[100]!,
+                            primaryColor,
+                          ),
                         ),
-                        
-                        // Kategori Drinks
-                        _buildCategoryItem(
-                          'Drinks',
-                          'assets/images/minum.png',
-                          Colors.green[100]!,
-                          Colors.green[800]!,
+
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const KitchenIngredientsCategoryScreen(),
+                              ),
+                            );
+                          },
+                          child: _buildCategoryItem(
+                            'Kitchen & Ingredients',
+                            'assets/images/dapur.png',
+                            Colors.orange[100]!,
+                            Colors.orange[800]!,
+                          ),
                         ),
-                        
-                        // Kategori tambahan dengan warna yang berbeda-beda
-                        _buildCategoryItem(
-                          'Snacks',
-                          'assets/images/foods.png',
-                          Colors.pink[100]!,
-                          Colors.pink[800]!,
+
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const FruitCategoryScreen(),
+                              ),
+                            );
+                          },
+                          child: _buildCategoryItem(
+                            'Fresh Fruits',
+                            'assets/images/buah.png',
+                            Colors.amber[100]!,
+                            Colors.amber[800]!,
+                          ),
                         ),
-                        
-                        _buildCategoryItem(
-                          'Frozen Food',
-                          'assets/images/foods.png',
-                          Colors.purple[100]!,
-                          Colors.purple[800]!,
-                        ),
-                        
-                        _buildCategoryItem(
-                          'Fresh Fruits',
-                          'assets/images/foods.png',
-                          Colors.amber[100]!,
-                          Colors.amber[800]!,
-                        ),
-                        
-                        _buildCategoryItem(
-                          'Vegetables',
-                          'assets/images/foods.png',
-                          Colors.lightGreen[100]!,
-                          Colors.lightGreen[800]!,
-                        ),
-                        
-                        _buildCategoryItem(
-                          'Personal Care',
-                          'assets/images/foods.png',
-                          Colors.teal[100]!,
-                          Colors.teal[800]!,
-                        ),
-                        
-                        _buildCategoryItem(
-                          'Home Care',
-                          'assets/images/foods.png',
-                          Colors.blue[100]!,
-                          Colors.blue[800]!,
+
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const PersonalcareCategoryScreen(),
+                              ),
+                            );
+                          },
+                          child: _buildCategoryItem(
+                            'Personal Care',
+                            'assets/images/personalcare.png',
+                            Colors.teal[100]!,
+                            Colors.teal[800]!,
+                          ),
                         ),
                       ],
                     ),
@@ -189,13 +204,6 @@ class AllCategoriesScreen extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: primaryColor,
                     borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
                   ),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -227,23 +235,32 @@ class AllCategoriesScreen extends StatelessWidget {
                         ),
                         
                         // Tombol Lihat
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            'Lihat',
-                            style: TextStyle(
-                              color: primaryColor,
-                              fontWeight: FontWeight.bold,
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => const NewsScreen(showBackButton: true),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              'Lihat',
+                              style: TextStyle(
+                                color: primaryColor,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
-                        ),
+                        )
                       ],
                     ),
                   ),
@@ -265,12 +282,12 @@ class AllCategoriesScreen extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20.0),
+        borderRadius: BorderRadius.circular(12.0),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 5,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -278,19 +295,19 @@ class AllCategoriesScreen extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            padding: const EdgeInsets.all(10),
-            margin: const EdgeInsets.only(bottom: 12, top: 10),
+            padding: const EdgeInsets.all(12),
+            margin: const EdgeInsets.only(bottom: 10, top: 10),
             decoration: BoxDecoration(
-              color: backgroundColor.withOpacity(0.7),
+              color: backgroundColor,
               shape: BoxShape.circle,
             ),
             child: Image.asset(
               imagePath,
-              height: 40,
-              width: 40,
+              height: 32,
+              width: 32,
               fit: BoxFit.contain,
               errorBuilder: (context, error, stackTrace) {
-                return Icon(Icons.category, color: iconColor, size: 30);
+                return Icon(Icons.category, color: iconColor, size: 26);
               },
             ),
           ),
@@ -299,7 +316,7 @@ class AllCategoriesScreen extends StatelessWidget {
             child: Text(
               name,
               style: const TextStyle(
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w500,
                 fontSize: 12,
                 color: Colors.black87,
                 height: 1.2,

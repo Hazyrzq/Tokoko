@@ -22,6 +22,11 @@ import 'screens/cart_screen.dart';
 import 'screens/checkout_screen.dart';
 import 'screens/main_screen.dart';
 import 'screens/profile_update_screen.dart'; // Tambahkan import untuk ProfileUpdateScreen
+import 'screens/fruit_category_screen.dart';
+import 'screens/drinks_category_screen.dart';
+import 'screens/personalcare_category_screen.dart';
+import 'screens/kitchen_ingredients_category_screen.dart';
+
 
 
 void main() {
@@ -88,6 +93,10 @@ class MyApp extends StatelessWidget {
           '/cart': (context) => const CartScreen(),
           '/checkout': (context) => const CheckoutScreen(),
           '/edit_profile': (context) => const ProfileUpdateScreen(), // Tambahkan route untuk ProfileUpdateScreen
+          '/drink_category': (context) => const DrinksCategoryScreen(),
+          '/kitchen_ingredients_category': (context) => const KitchenIngredientsCategoryScreen(),
+          '/fruit_category': (context) => const FruitCategoryScreen(),
+          '/personalcare_category': (context) => const PersonalcareCategoryScreen(),
         },
       ),
     );

@@ -5,7 +5,9 @@ import 'food_category_screen.dart';
 import 'news_screen.dart';
 import 'all_categories_screen.dart';
 import 'ramadhan_products_screen.dart';
-import '../providers/profile_provider.dart';  // Import the profile provider
+import '../providers/profile_provider.dart';
+import 'kitchen_ingredients_category_screen.dart';
+import 'drinks_category_screen.dart'; // Import the profile provider
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -95,9 +97,9 @@ class _HomeScreenState extends State<HomeScreen> {
                               border: Border.all(color: primaryColor, width: 2),
                             ),
                             child: _buildProfileImage(
-                              profileProvider, 
+                              profileProvider,
                               isSmallScreen ? 18 : 22,
-                              primaryColor
+                              primaryColor,
                             ),
                           ),
                           SizedBox(width: isSmallScreen ? 10 : 14),
@@ -146,9 +148,10 @@ class _HomeScreenState extends State<HomeScreen> {
                             onPressed: () {
                               Navigator.of(context).push(
                                 MaterialPageRoute(
-                                  builder: (context) => const NewsScreen(
-                                    showBackButton: true,
-                                  ),
+                                  builder:
+                                      (context) => const NewsScreen(
+                                        showBackButton: true,
+                                      ),
                                 ),
                               );
                             },
@@ -431,20 +434,44 @@ class _HomeScreenState extends State<HomeScreen> {
                             width: itemWidth,
                           ),
                         ),
-                        _buildModernCategoryItem(
-                          'Kitchen &\nIngredients',
-                          'assets/images/dapur.png',
-                          Colors.orange[100]!,
-                          Colors.orange[800]!,
-                          width: itemWidth,
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (context) =>
+                                        const KitchenIngredientsCategoryScreen(),
+                              ),
+                            );
+                          },
+                          child: _buildModernCategoryItem(
+                            'Kitchen &\nIngredients',
+                            'assets/images/dapur.png',
+                            Colors.orange[100]!,
+                            Colors.orange[800]!,
+                            width: itemWidth,
+                          ),
                         ),
-                        _buildModernCategoryItem(
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (context) =>
+                                        const DrinksCategoryScreen(),
+                              ),
+                            );
+                          },
+                          child: _buildModernCategoryItem(
                           'Drinks',
                           'assets/images/minum.png',
                           Colors.green[100]!,
                           Colors.green[800]!,
                           width: itemWidth,
                         ),
+                      )
                       ],
                     );
                   },
@@ -569,18 +596,18 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   // Method untuk membangun gambar profil
-  Widget _buildProfileImage(ProfileProvider profileProvider, double radius, Color primaryColor) {
+  Widget _buildProfileImage(
+    ProfileProvider profileProvider,
+    double radius,
+    Color primaryColor,
+  ) {
     try {
       if (profileProvider.fotoProfilPath.isEmpty) {
         // Jika tidak ada foto profil, tampilkan avatar default
         return CircleAvatar(
           radius: radius,
           backgroundColor: const Color(0xFFE3F2FD),
-          child: Icon(
-            Icons.person,
-            color: primaryColor,
-            size: radius,
-          ),
+          child: Icon(Icons.person, color: primaryColor, size: radius),
         );
       } else if (profileProvider.fotoProfilPath.startsWith('assets/')) {
         // Jika foto dari asset
@@ -609,7 +636,9 @@ class _HomeScreenState extends State<HomeScreen> {
         radius: radius,
         backgroundColor: const Color(0xFFE3F2FD),
         child: Text(
-          profileProvider.nama.isNotEmpty ? profileProvider.nama[0].toUpperCase() : "?",
+          profileProvider.nama.isNotEmpty
+              ? profileProvider.nama[0].toUpperCase()
+              : "?",
           style: TextStyle(
             color: primaryColor,
             fontWeight: FontWeight.bold,
@@ -619,213 +648,213 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
   }
-  }
+}
 
-  Widget _buildModernCategoryItem(
-    String name,
-    String imagePath,
-    Color backgroundColor,
-    Color iconColor, {
-    required double width,
-  }) {
-    final bool isNameLong = name.length > 6;
+Widget _buildModernCategoryItem(
+  String name,
+  String imagePath,
+  Color backgroundColor,
+  Color iconColor, {
+  required double width,
+}) {
+  final bool isNameLong = name.length > 6;
 
-    return Container(
-      width: width,
-      height: 120,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20.0),
-        boxShadow: [
-          BoxShadow(
-            color: backgroundColor.withOpacity(0.5),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+  return Container(
+    width: width,
+    height: 120,
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(20.0),
+      boxShadow: [
+        BoxShadow(
+          color: backgroundColor.withOpacity(0.5),
+          blurRadius: 10,
+          offset: const Offset(0, 4),
+        ),
+      ],
+    ),
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: backgroundColor.withOpacity(0.7),
+            shape: BoxShape.circle,
           ),
-        ],
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: backgroundColor.withOpacity(0.7),
-              shape: BoxShape.circle,
-            ),
-            child: Image.asset(
-              imagePath,
-              height: 40,
-              width: 40,
-              fit: BoxFit.contain,
-              errorBuilder: (context, error, stackTrace) {
-                return Icon(Icons.category, color: iconColor, size: 30);
-              },
-            ),
+          child: Image.asset(
+            imagePath,
+            height: 40,
+            width: 40,
+            fit: BoxFit.contain,
+            errorBuilder: (context, error, stackTrace) {
+              return Icon(Icons.category, color: iconColor, size: 30);
+            },
           ),
-          const SizedBox(height: 12),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4.0),
-            child: Text(
-              name,
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 12,
-                color: Colors.black87,
-                height: 1.2,
-              ),
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildModernProductItem(
-    String name,
-    String price,
-    String imagePath,
-    String originalPrice, {
-    int? discount,
-    required Color accentColor,
-  }) {
-    return Container(
-      width: 150,
-      padding: const EdgeInsets.all(12.0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20.0),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Product Image
-          Stack(
-            children: [
-              Container(
-                height: 100,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: Colors.grey[100],
-                  borderRadius: BorderRadius.circular(16.0),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(16.0),
-                  child: Image.asset(
-                    imagePath,
-                    fit: BoxFit.contain,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Center(
-                        child: Icon(
-                          Icons.image_not_supported,
-                          size: 30,
-                          color: Colors.grey[400],
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ),
-              if (discount != null)
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.red[600],
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(16),
-                        bottomRight: Radius.circular(16),
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.red.withOpacity(0.3),
-                          blurRadius: 5,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Text(
-                      "-$discount%",
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-          const SizedBox(height: 10),
-
-          // Product Title
-          Text(
+        ),
+        const SizedBox(height: 12),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4.0),
+          child: Text(
             name,
-            style: const TextStyle(
+            style: TextStyle(
               fontWeight: FontWeight.w600,
-              fontSize: 14,
+              fontSize: 12,
               color: Colors.black87,
+              height: 1.2,
             ),
-            maxLines: 1,
+            textAlign: TextAlign.center,
+            maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 4),
+        ),
+      ],
+    ),
+  );
+}
 
-          // Price
-          Text(
-            "Rp $price",
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Colors.red[700],
-              fontSize: 15,
+Widget _buildModernProductItem(
+  String name,
+  String price,
+  String imagePath,
+  String originalPrice, {
+  int? discount,
+  required Color accentColor,
+}) {
+  return Container(
+    width: 150,
+    padding: const EdgeInsets.all(12.0),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(20.0),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.08),
+          blurRadius: 15,
+          offset: const Offset(0, 5),
+        ),
+      ],
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Product Image
+        Stack(
+          children: [
+            Container(
+              height: 100,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                borderRadius: BorderRadius.circular(16.0),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16.0),
+                child: Image.asset(
+                  imagePath,
+                  fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Center(
+                      child: Icon(
+                        Icons.image_not_supported,
+                        size: 30,
+                        color: Colors.grey[400],
+                      ),
+                    );
+                  },
+                ),
+              ),
             ),
-          ),
-
-          // Original Price and Add button
-          Row(
-            children: [
-              Text(
-                "Rp $originalPrice",
-                style: TextStyle(
-                  decoration: TextDecoration.lineThrough,
-                  color: Colors.grey[500],
-                  fontSize: 12,
-                ),
-              ),
-              const Spacer(),
-              Container(
-                padding: const EdgeInsets.all(5),
-                decoration: BoxDecoration(
-                  color: accentColor,
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: accentColor.withOpacity(0.4),
-                      blurRadius: 5,
-                      offset: const Offset(0, 2),
+            if (discount != null)
+              Positioned(
+                top: 0,
+                left: 0,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.red[600],
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(16),
+                      bottomRight: Radius.circular(16),
                     ),
-                  ],
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.red.withOpacity(0.3),
+                        blurRadius: 5,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Text(
+                    "-$discount%",
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
-                child: const Icon(Icons.add, color: Colors.white, size: 16),
               ),
-            ],
+          ],
+        ),
+        const SizedBox(height: 10),
+
+        // Product Title
+        Text(
+          name,
+          style: const TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 14,
+            color: Colors.black87,
           ),
-        ],
-      ),
-    );
-  }
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        const SizedBox(height: 4),
+
+        // Price
+        Text(
+          "Rp $price",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.red[700],
+            fontSize: 15,
+          ),
+        ),
+
+        // Original Price and Add button
+        Row(
+          children: [
+            Text(
+              "Rp $originalPrice",
+              style: TextStyle(
+                decoration: TextDecoration.lineThrough,
+                color: Colors.grey[500],
+                fontSize: 12,
+              ),
+            ),
+            const Spacer(),
+            Container(
+              padding: const EdgeInsets.all(5),
+              decoration: BoxDecoration(
+                color: accentColor,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: accentColor.withOpacity(0.4),
+                    blurRadius: 5,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: const Icon(Icons.add, color: Colors.white, size: 16),
+            ),
+          ],
+        ),
+      ],
+    ),
+  );
+}

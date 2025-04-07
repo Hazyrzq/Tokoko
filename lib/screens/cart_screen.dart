@@ -443,6 +443,7 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
   
+  // UPDATED: Cart items with enhanced price display showing multiplication
   Widget _buildCartItems(Color primaryColor) {
     return ListView.builder(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -466,6 +467,7 @@ class _CartScreenState extends State<CartScreen> {
           child: Padding(
             padding: const EdgeInsets.all(12.0),
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Product image
                 Container(
@@ -561,18 +563,51 @@ class _CartScreenState extends State<CartScreen> {
                       ),
                     ),
                     
-                    // Subtotal below quantity controls
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: Text(
-                        'Rp ${item.price * item.quantity}',
-                        style: GoogleFonts.poppins(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black87,
+                    // Enhanced subtotal with calculation shown
+                    if (item.quantity > 1)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            // Price calculation (quantity x price)
+                            Row(
+                              children: [
+                                Text(
+                                  '${item.quantity} × Rp ${item.price}',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 11,
+                                    color: Colors.grey[500],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 3),
+                            // Total price
+                            Text(
+                              'Rp ${item.price * item.quantity}',
+                              style: GoogleFonts.poppins(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black87,
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    else
+                      // Just show price for single quantity
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: Text(
+                          'Rp ${item.price * item.quantity}',
+                          style: GoogleFonts.poppins(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                          ),
                         ),
                       ),
-                    ),
                   ],
                 ),
               ],
@@ -583,6 +618,7 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
   
+  // UPDATED: Enhanced checkout section with a more detailed summary
   Widget _buildCheckoutSection(Color primaryColor) {
     // Check if address is empty or cart is empty to disable checkout button
     bool isCheckoutDisabled = _cartService.itemCount == 0 || deliveryAddress.isEmpty;
@@ -602,12 +638,12 @@ class _CartScreenState extends State<CartScreen> {
       ),
       child: Column(
         children: [
-          // Pricing summary
+          // Pricing summary with enhanced details
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Subtotal',
+                'Subtotal (${_cartService.itemCount} ${_cartService.itemCount > 1 ? 'items' : 'item'})',
                 style: GoogleFonts.poppins(
                   fontSize: 14,
                   color: Colors.grey[600],

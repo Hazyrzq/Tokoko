@@ -1,11 +1,10 @@
-// File: lib/models/product.dart
-
 class Product {
-  final int id;
+  final String id;
   final String name;
-  final int price;
+  final double price;
   final String imageUrl;
   final String subtitle;
+  final double? rating;
   
   Product({
     required this.id,
@@ -13,5 +12,6 @@ class Product {
     required this.price,
     required this.imageUrl,
     required this.subtitle,
+    this.rating,
   });
 }

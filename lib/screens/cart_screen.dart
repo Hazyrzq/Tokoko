@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:transparent_image/transparent_image.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../services/cart_service.dart';
 import '../models/cart_item.dart';
 
@@ -13,6 +14,36 @@ class CartScreen extends StatefulWidget {
 
 class _CartScreenState extends State<CartScreen> {
   final CartService _cartService = CartService();
+  // Start with empty address
+  String deliveryAddress = '';
+  final TextEditingController _addressController = TextEditingController();
+  
+  @override
+  void initState() {
+    super.initState();
+    // Load saved address if exists
+    _loadSavedAddress();
+  }
+  
+  // Method to load saved address from SharedPreferences
+  Future<void> _loadSavedAddress() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      deliveryAddress = prefs.getString('user_address') ?? '';
+    });
+  }
+  
+  // Method to save address to SharedPreferences
+  Future<void> _saveAddress(String address) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('user_address', address);
+  }
+
+  @override
+  void dispose() {
+    _addressController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -146,7 +177,7 @@ class _CartScreenState extends State<CartScreen> {
                     ),
                   ),
 
-                  // Delivery address section
+                  // Delivery address section - Updated to show address input if no address is saved
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                     child: Container(
@@ -191,14 +222,23 @@ class _CartScreenState extends State<CartScreen> {
                                     ),
                                   ),
                                   const SizedBox(height: 4),
-                                  Text(
-                                    'Jl. Durian No. 2, Theu Don Ward, An Phu, District 2, Ho Chi Minh city',
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 12,
-                                      color: Colors.grey[600],
-                                      height: 1.5,
-                                    ),
-                                  ),
+                                  deliveryAddress.isEmpty
+                                    ? Text(
+                                        'Please add a delivery address',
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 12,
+                                          color: Colors.grey[600],
+                                          fontStyle: FontStyle.italic,
+                                        ),
+                                      )
+                                    : Text(
+                                        deliveryAddress,
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 12,
+                                          color: Colors.grey[600],
+                                          height: 1.5,
+                                        ),
+                                      ),
                                 ],
                               ),
                             ),
@@ -210,13 +250,14 @@ class _CartScreenState extends State<CartScreen> {
                                   shape: BoxShape.circle,
                                 ),
                                 child: Icon(
-                                  Icons.edit_outlined,
+                                  deliveryAddress.isEmpty ? Icons.add : Icons.edit_outlined,
                                   color: primaryColor,
                                   size: 16,
                                 ),
                               ),
                               onPressed: () {
-                                // Implementasi edit alamat
+                                // Show dialog to add/edit address
+                                _showEditAddressDialog(context, primaryColor);
                               },
                               constraints: const BoxConstraints(),
                               padding: EdgeInsets.zero,
@@ -242,6 +283,80 @@ class _CartScreenState extends State<CartScreen> {
           ),
         );
       },
+    );
+  }
+  
+  // Updated method to show edit address dialog
+  void _showEditAddressDialog(BuildContext context, Color primaryColor) {
+    // Set the initial value of the text controller to current address
+    _addressController.text = deliveryAddress;
+    
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: Text(
+          deliveryAddress.isEmpty ? 'Add Delivery Address' : 'Edit Delivery Address',
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+            color: Colors.black87,
+          ),
+        ),
+        content: TextField(
+          controller: _addressController,
+          maxLines: 3,
+          decoration: InputDecoration(
+            hintText: 'Enter your delivery address',
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey[300]!),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: primaryColor, width: 2),
+            ),
+            contentPadding: const EdgeInsets.all(16),
+          ),
+          style: GoogleFonts.poppins(
+            fontSize: 14,
+            color: Colors.black87,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'Cancel',
+              style: GoogleFonts.poppins(
+                color: Colors.grey[600],
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              // Update and save the address
+              final newAddress = _addressController.text;
+              setState(() {
+                deliveryAddress = newAddress;
+              });
+              // Save to SharedPreferences to persist
+              _saveAddress(newAddress);
+              Navigator.pop(context);
+            },
+            child: Text(
+              'Save',
+              style: GoogleFonts.poppins(
+                color: primaryColor,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
   
@@ -469,6 +584,9 @@ class _CartScreenState extends State<CartScreen> {
   }
   
   Widget _buildCheckoutSection(Color primaryColor) {
+    // Check if address is empty or cart is empty to disable checkout button
+    bool isCheckoutDisabled = _cartService.itemCount == 0 || deliveryAddress.isEmpty;
+    
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -552,6 +670,20 @@ class _CartScreenState extends State<CartScreen> {
           
           const SizedBox(height: 16),
           
+          // Address warning if empty
+          if (deliveryAddress.isEmpty && _cartService.itemCount > 0)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Text(
+                'Please add a delivery address to proceed',
+                style: GoogleFonts.poppins(
+                  fontSize: 13,
+                  color: Colors.red[400],
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            ),
+          
           // Checkout button
           SizedBox(
             width: double.infinity,
@@ -559,14 +691,14 @@ class _CartScreenState extends State<CartScreen> {
             child: Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: _cartService.itemCount == 0
+                  colors: isCheckoutDisabled
                       ? [Colors.grey[400]!, Colors.grey[300]!]
                       : [primaryColor, primaryColor.withOpacity(0.8)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
                 borderRadius: BorderRadius.circular(25),
-                boxShadow: _cartService.itemCount == 0
+                boxShadow: isCheckoutDisabled
                     ? []
                     : [
                         BoxShadow(
@@ -578,11 +710,16 @@ class _CartScreenState extends State<CartScreen> {
                       ],
               ),
               child: ElevatedButton.icon(
-                onPressed: _cartService.itemCount == 0
+                onPressed: isCheckoutDisabled
                     ? null
                     : () {
-                        // Navigasi ke halaman checkout
-                        Navigator.pushNamed(context, '/checkout');
+                        // Navigate to checkout with saved address
+                        // Pass the address to the checkout screen
+                        Navigator.pushNamed(
+                          context, 
+                          '/checkout',
+                          arguments: {'address': deliveryAddress}
+                        );
                       },
                 icon: const Icon(Icons.shopping_cart_checkout_rounded, color: Colors.white),
                 label: Text(

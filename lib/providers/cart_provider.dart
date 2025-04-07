@@ -1,51 +1,43 @@
 import 'package:flutter/foundation.dart';
-
-class CartItem {
-  final String id;
-  final String name;
-  final double price;
-  final String imageUrl;
-  int quantity;
-
-  CartItem({
-    required this.id,
-    required this.name,
-    required this.price,
-    required this.imageUrl,
-    this.quantity = 1,
-  });
-}
+import '../models/cart_item.dart';
 
 class CartProvider with ChangeNotifier {
   final List<CartItem> _items = [];
 
   List<CartItem> get items => _items;
 
-  int get itemCount => _items.length;
+  // Get total number of items, counting quantities
+  int get itemCount {
+    return _items.fold(0, (sum, item) => sum + item.quantity);
+  }
+
+  // Get total number of unique products
+  int get uniqueItemCount => _items.length;
 
   void addToCart(CartItem item) {
-    // Cek apakah item sudah ada di keranjang
-    for (var existingItem in _items) {
-      if (existingItem.id == item.id) {
-        existingItem.quantity += item.quantity;
-        notifyListeners();
-        return;
-      }
+    // Check if item already exists in cart
+    final existingIndex = _items.indexWhere((cartItem) => cartItem.id == item.id);
+    
+    if (existingIndex >= 0) {
+      // Update existing item quantity
+      _items[existingIndex].quantity += item.quantity;
+    } else {
+      // Add new item
+      _items.add(item);
     }
     
-    // Jika item belum ada, tambahkan item baru
-    _items.add(item);
     notifyListeners();
   }
 
-  void removeFromCart(CartItem item) {
-    _items.remove(item);
+  void removeFromCart(String id) {
+    _items.removeWhere((item) => item.id == id);
     notifyListeners();
   }
 
-  void updateQuantity(CartItem item, int newQuantity) {
-    final index = _items.indexWhere((cartItem) => cartItem.id == item.id);
-    if (index != -1) {
+  void updateQuantity(String id, int newQuantity) {
+    final index = _items.indexWhere((cartItem) => cartItem.id == id);
+    
+    if (index >= 0) {
       if (newQuantity > 0) {
         _items[index].quantity = newQuantity;
       } else {
@@ -55,7 +47,7 @@ class CartProvider with ChangeNotifier {
     }
   }
 
-  void clearCart() {
+  void clear() {
     _items.clear();
     notifyListeners();
   }

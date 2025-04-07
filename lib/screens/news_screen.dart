@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class NewsScreen extends StatelessWidget {
   // Parameter untuk menentukan apakah tampilkan tombol back atau tidak
   final bool showBackButton;
-  
+
   // Jumlah notifikasi (akan digunakan juga di HomeScreen)
   static const int notificationCount = 4;
 
@@ -15,15 +16,16 @@ class NewsScreen extends StatelessWidget {
     // Mendapatkan ukuran layar dan padding horizontal yang konsisten
     final horizontalPadding = 16.0;
     final primaryColor = const Color(0xFF2D7BEE);
+    final secondaryColor = const Color(0xFFFF8C00);
     
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.grey[50],
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: const Text(
+        title: Text(
           'Notifications',
-          style: TextStyle(
+          style: GoogleFonts.poppins(
             color: Colors.black87,
             fontWeight: FontWeight.w600,
             fontSize: 18,
@@ -53,264 +55,372 @@ class NewsScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: Column(
+      body: Stack(
         children: [
-          // Filter tabs
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  _buildFilterTab('All', true, primaryColor),
-                  const SizedBox(width: 10),
-                  _buildFilterTab('Promos', false, primaryColor),
-                  const SizedBox(width: 10),
-                  _buildFilterTab('Updates', false, primaryColor),
-                  const SizedBox(width: 10),
-                  _buildFilterTab('Orders', false, primaryColor),
-                ],
+          // Background decorations
+          Positioned(
+            top: -100,
+            right: -100,
+            child: Container(
+              width: 200,
+              height: 200,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: primaryColor.withOpacity(0.05),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: -100,
+            left: -100,
+            child: Container(
+              width: 200,
+              height: 200,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: secondaryColor.withOpacity(0.05),
               ),
             ),
           ),
           
-          // Notification List
-          Expanded(
-            child: ListView(
-              padding: EdgeInsets.only(top: 10, bottom: 20),
-              children: [
-                // Today header
-                _buildDateHeader('Today', true),
-                
-                // Today's notifications
-                _buildNotificationItem(
-                  context,
-                  imagePath: 'assets/images/banner1.png',
-                  title: 'Special Skincare Promo',
-                  description: 'Get up to 50% off on selected skincare products',
-                  timeAgo: '15 min ago',
-                  isNew: true,
-                  primaryColor: primaryColor,
+          // Header section with filter options
+          Column(
+            children: [
+              Padding(
+                padding: EdgeInsets.fromLTRB(horizontalPadding, 16, horizontalPadding, 0),
+                child: Row(
+                  children: [
+                    _buildFilterChip('All', true, primaryColor),
+                    const SizedBox(width: 8),
+                    _buildFilterChip('Promos', false, primaryColor),
+                    const SizedBox(width: 8),
+                    _buildFilterChip('Updates', false, primaryColor),
+                    const SizedBox(width: 8),
+                    _buildFilterChip('Orders', false, primaryColor),
+                  ],
                 ),
-                
-                _buildNotificationItem(
-                  context,
-                  imagePath: 'assets/images/banner2.png',
-                  title: 'Cooking Oil Discount',
-                  description: 'Save on your monthly cooking oil purchase',
-                  timeAgo: '2 hours ago',
-                  isNew: true,
-                  primaryColor: primaryColor,
+              ),
+              
+              // Date indicator
+              Padding(
+                padding: EdgeInsets.fromLTRB(horizontalPadding, 20, horizontalPadding, 12),
+                child: Row(
+                  children: [
+                    Container(
+                      height: 6,
+                      width: 6,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: primaryColor,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Today',
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ],
                 ),
-                
-                // Yesterday header
-                _buildDateHeader('Yesterday', false),
-                
-                // Yesterday's notifications
-                _buildNotificationItem(
-                  context,
-                  imagePath: 'assets/images/banner3.png',
-                  title: 'Eid Al-Fitr Special',
-                  description: 'Exclusive THR deals for Ramadan celebration',
-                  timeAgo: '1 day ago',
-                  isNew: false,
-                  primaryColor: primaryColor,
+              ),
+              
+              // List of notifications
+              Expanded(
+                child: ListView(
+                  padding: EdgeInsets.only(top: 0, bottom: 80),
+                  children: [
+                    _buildPromoNotification(
+                      context,
+                      imagePath: 'assets/images/banner1.png',
+                      title: 'Special Skincare Promo',
+                      description: 'Get up to 50% off on selected skincare products',
+                      time: '15 min ago',
+                      isNew: true,
+                      primaryColor: primaryColor,
+                      onTap: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Promo skincare dipilih')),
+                        );
+                      },
+                    ),
+                    
+                    _buildPromoNotification(
+                      context,
+                      imagePath: 'assets/images/banner2.png',
+                      title: 'Cooking Oil Discount',
+                      description: 'Save on your monthly cooking oil purchase',
+                      time: '2 hours ago',
+                      isNew: true,
+                      primaryColor: primaryColor,
+                      onTap: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Promo minyak goreng dipilih')),
+                        );
+                      },
+                    ),
+                    
+                    // Date divider for yesterday
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(horizontalPadding, 20, horizontalPadding, 12),
+                      child: Row(
+                        children: [
+                          Container(
+                            height: 6,
+                            width: 6,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.grey[500],
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Yesterday',
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    
+                    _buildPromoNotification(
+                      context,
+                      imagePath: 'assets/images/banner3.png',
+                      title: 'Eid Al-Fitr Special',
+                      description: 'Exclusive THR deals for Ramadan celebration',
+                      time: '1 day ago',
+                      isNew: false,
+                      primaryColor: primaryColor,
+                      onTap: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Promo spesial THR dipilih')),
+                        );
+                      },
+                    ),
+                    
+                    _buildPromoNotification(
+                      context,
+                      imagePath: 'assets/images/banner4.png',
+                      title: 'Weekend Sale Festival',
+                      description: 'Explore amazing deals this weekend only',
+                      time: '1 day ago',
+                      isNew: false,
+                      primaryColor: primaryColor,
+                      onTap: () {
+                        // Navigate to DetailPromoScreen
+                        Navigator.pushNamed(context, '/detail_promo');
+                      },
+                    ),
+                  ],
                 ),
-                
-                _buildNotificationItem(
-                  context,
-                  imagePath: 'assets/images/banner4.png',
-                  title: 'Weekend Sale Festival',
-                  description: 'Explore amazing deals this weekend only',
-                  timeAgo: '1 day ago',
-                  isNew: false,
-                  primaryColor: primaryColor,
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ],
       ),
     );
   }
   
-  // Filter tab widget
-  Widget _buildFilterTab(String label, bool isActive, Color primaryColor) {
+  // Widget for filter chips
+  Widget _buildFilterChip(String label, bool isSelected, Color primaryColor) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: isActive ? primaryColor : Colors.grey[200],
+        color: isSelected ? primaryColor : Colors.white,
         borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: isActive ? Colors.white : Colors.black87,
-          fontWeight: FontWeight.w500,
-          fontSize: 14,
-        ),
-      ),
-    );
-  }
-  
-  // Date header widget
-  Widget _buildDateHeader(String date, bool isToday) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 16, top: 16, bottom: 8),
-      child: Row(
-        children: [
-          Container(
-            width: 8,
-            height: 8,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: isToday ? Colors.blue : Colors.grey,
-            ),
-          ),
-          const SizedBox(width: 8),
-          Text(
-            date,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: isToday ? Colors.black87 : Colors.grey[600],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-  
-  // Notification item widget
-  Widget _buildNotificationItem(
-    BuildContext context, {
-    required String imagePath,
-    required String title,
-    required String description,
-    required String timeAgo,
-    required bool isNew,
-    required Color primaryColor,
-  }) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
-            blurRadius: 5,
+            blurRadius: 10,
+            spreadRadius: 0,
             offset: const Offset(0, 2),
           ),
         ],
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Image
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: Image.asset(
-              imagePath,
-              width: 60,
-              height: 60,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  width: 60,
-                  height: 60,
-                  color: Colors.grey[300],
-                  child: const Icon(Icons.image, color: Colors.grey),
-                );
-              },
+      child: Text(
+        label,
+        style: GoogleFonts.poppins(
+          color: isSelected ? Colors.white : Colors.black87,
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+    );
+  }
+
+  // Widget for modern promo notification cards
+  Widget _buildPromoNotification(
+    BuildContext context, {
+    required String imagePath,
+    required String title,
+    required String description,
+    required String time,
+    required bool isNew,
+    required Color primaryColor,
+    required VoidCallback onTap,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              spreadRadius: 0,
+              offset: const Offset(0, 2),
             ),
-          ),
-          const SizedBox(width: 12),
-          
-          // Content
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Title and NEW badge
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        title,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                          color: Colors.black87,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
+          ],
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(16),
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Promo image
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.asset(
+                      imagePath,
+                      width: 80,
+                      height: 80,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          width: 80,
+                          height: 80,
+                          color: Colors.grey[300],
+                          child: const Icon(Icons.image_not_supported, color: Colors.grey),
+                        );
+                      },
                     ),
-                    if (isNew)
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: primaryColor,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: const Text(
-                          'NEW',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                
-                // Description
-                Text(
-                  description,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[600],
                   ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 8),
-                
-                // Time and view button
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // Time ago
-                    Row(
+                  const SizedBox(width: 12),
+                  
+                  // Notification content
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(
-                          Icons.access_time,
-                          size: 12,
-                          color: Colors.grey[400],
+                        // Title with new badge if needed
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                title,
+                                style: GoogleFonts.poppins(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                  color: Colors.black87,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            if (isNew)
+                              Container(
+                                margin: const EdgeInsets.only(left: 8),
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: primaryColor,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Text(
+                                  'NEW',
+                                  style: GoogleFonts.poppins(
+                                    color: Colors.white,
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                          ],
                         ),
-                        const SizedBox(width: 4),
+                        const SizedBox(height: 4),
+                        
+                        // Description
                         Text(
-                          timeAgo,
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: Colors.grey[400],
+                          description,
+                          style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            color: Colors.grey[600],
                           ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 8),
+                        
+                        // Time and action button
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            // Time indicator
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.access_time,
+                                  size: 12,
+                                  color: Colors.grey[500],
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  time,
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 10,
+                                    color: Colors.grey[500],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            
+                            // View details button
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: primaryColor.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Row(
+                                children: [
+                                  Text(
+                                    'View',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w500,
+                                      color: primaryColor,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 2),
+                                  Icon(
+                                    Icons.arrow_forward_ios_rounded,
+                                    size: 8,
+                                    color: primaryColor,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                    
-                   
-                  ],
-                ),
-              ],
+                  ),
+                ],
+              ),
             ),
           ),
-        ],
+        ),
       ),
     );
   }

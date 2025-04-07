@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../widgets/navigationbar.dart';
+import '../widgets/cart_badge.dart';
 import '../services/cart_service.dart';
 import '../models/product.dart';
 
@@ -34,9 +34,17 @@ class _FoodCategoryScreenState extends State<FoodCategoryScreen> {
           ),
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.search, color: Colors.black),
-            onPressed: () {},
+          // Only the cart icon with badge
+          Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: IconButton(
+              icon: CartBadge(
+                child: const Icon(Icons.shopping_cart, color: Colors.black),
+              ),
+              onPressed: () {
+                Navigator.pushNamed(context, '/cart');
+              },
+            ),
           ),
         ],
       ),
@@ -176,7 +184,6 @@ class _FoodCategoryScreenState extends State<FoodCategoryScreen> {
                     'Popular Products',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
-                  TextButton(onPressed: () {}, child: const Text('See All')),
                 ],
               ),
             ),
@@ -216,46 +223,6 @@ class _FoodCategoryScreenState extends State<FoodCategoryScreen> {
                     Colors.yellow[50]!,
                     discount: 8,
                   ),
-                ],
-              ),
-            ),
-          ),
-
-          // Categories Title
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Categories',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  TextButton(onPressed: () {}, child: const Text('See All')),
-                ],
-              ),
-            ),
-          ),
-
-          // Horizontal Scrolling Categories
-          SliverToBoxAdapter(
-            child: Container(
-              height: 90,
-              margin: const EdgeInsets.only(bottom: 16),
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                children: [
-                  _buildCategoryChip('Snacks', Icons.fastfood, Colors.orange),
-                  _buildCategoryChip(
-                    'Instant Food',
-                    Icons.ramen_dining,
-                    Colors.red,
-                  ),
-                  _buildCategoryChip('Sweets', Icons.cake, Colors.pink),
-                  _buildCategoryChip('Frozen', Icons.ac_unit, Colors.lightBlue),
-                  _buildCategoryChip('Healthy', Icons.favorite, Colors.teal),
                 ],
               ),
             ),
@@ -309,7 +276,7 @@ class _FoodCategoryScreenState extends State<FoodCategoryScreen> {
                   id: 1,
                   name: 'Indomie Goreng',
                   price: 'Rp3.500',
-                  priceValue: 3500,
+                  priceValue: 3500.0,
                   imagePath: 'assets/images/indomie.png',
                   subtitle: '85 Gr',
                   rating: 4.8,
@@ -318,7 +285,7 @@ class _FoodCategoryScreenState extends State<FoodCategoryScreen> {
                   id: 3,
                   name: 'Fitbar Fruit',
                   price: 'Rp5.000',
-                  priceValue: 5000,
+                  priceValue: 5000.0,
                   imagePath: 'assets/images/fitbar.png',
                   subtitle: '20 Gr',
                   rating: 4.5,
@@ -327,7 +294,7 @@ class _FoodCategoryScreenState extends State<FoodCategoryScreen> {
                   id: 4,
                   name: 'Chiki Balls',
                   price: 'Rp7.000',
-                  priceValue: 7000,
+                  priceValue: 7000.0,
                   imagePath: 'assets/images/chiki.png',
                   subtitle: '100 Gr',
                   rating: 4.6,
@@ -336,7 +303,7 @@ class _FoodCategoryScreenState extends State<FoodCategoryScreen> {
                   id: 5,
                   name: 'Jetz Sticks',
                   price: 'Rp2.000',
-                  priceValue: 2000,
+                  priceValue: 2000.0,
                   imagePath: 'assets/images/jetz.png',
                   subtitle: '30 Gr',
                   rating: 4.2,
@@ -348,16 +315,19 @@ class _FoodCategoryScreenState extends State<FoodCategoryScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Navigasi ke halaman Shopping Cart
+          // Navigate to Shopping Cart page
           Navigator.pushNamed(context, '/cart');
         },
         backgroundColor: Colors.orange,
-        child: const Icon(Icons.shopping_cart),
+        // Use CartBadge to show item count
+        child: CartBadge(
+          badgeColor: Colors.blue,
+          child: const Icon(Icons.shopping_cart),
+        ),
         elevation: 6,
         shape: const CircleBorder(),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: const CustomBottomNavBar(),
+      // Removed the floating action button location and bottom navigation bar
     );
   }
 
@@ -528,7 +498,7 @@ class _FoodCategoryScreenState extends State<FoodCategoryScreen> {
     required int id,
     required String name,
     required String price,
-    required int priceValue,
+    required double priceValue,
     required String imagePath,
     required String subtitle,
     double rating = 0.0,
@@ -633,19 +603,23 @@ class _FoodCategoryScreenState extends State<FoodCategoryScreen> {
                 const SizedBox(height: 8),
                 InkWell(
                   onTap: () {
-                    // Membuat objek Product
+                    // Create Product object with double price
                     final product = Product(
-                      id: id,
+                      id: id.toString(),
                       name: name,
                       price: priceValue,
                       imageUrl: imagePath,
                       subtitle: subtitle,
+                      rating: rating,
                     );
                     
-                    // Tambahkan ke keranjang
+                    // Add to cart
                     _cartService.addProduct(product);
                     
-                    // Tampilkan snackbar konfirmasi
+                    // Force UI to refresh with setState
+                    setState(() {});
+                    
+                    // Show confirmation snackbar
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text('$name telah ditambahkan ke keranjang'),

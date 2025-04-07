@@ -1,19 +1,17 @@
-// File: lib/models/cart_item.dart
-
 class CartItem {
-  final int id;
+  final String id;
   final String name;
-  final int price;
-  int quantity;
-  final String imageUrl;
   final String subtitle;
-
+  final double price;
+  final String imageUrl;
+  int quantity;
+ 
   CartItem({
     required this.id,
     required this.name,
-    required this.price,
-    required this.quantity,
-    required this.imageUrl,
     required this.subtitle,
+    required this.price,
+    required this.imageUrl,
+    this.quantity = 1,
   });
 }

@@ -3,7 +3,13 @@ import 'package:google_fonts/google_fonts.dart';
 import '../services/transaction_service.dart';
 
 class TransactionScreen extends StatelessWidget {
-  const TransactionScreen({Key? key}) : super(key: key);
+  // Parameter tambahan untuk mengontrol visibilitas tombol back
+  final bool showBackButton;
+
+  const TransactionScreen({
+    Key? key, 
+    this.showBackButton = false  // Default false, hanya tampil setelah checkout
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +22,7 @@ class TransactionScreen extends StatelessWidget {
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
         title: Text(
-          'My Orders',
+          'Pesanan Saya',
           style: GoogleFonts.poppins(
             color: Colors.black87,
             fontSize: 18,
@@ -26,7 +32,28 @@ class TransactionScreen extends StatelessWidget {
         centerTitle: true,
         backgroundColor: Colors.white,
         elevation: 0,
+        // Ubah logika untuk tombol back
         automaticallyImplyLeading: false,
+        leading: showBackButton 
+          ? IconButton(
+              icon: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.arrow_back_ios_new_rounded, 
+                  color: primaryColor,
+                  size: 16,
+                ),
+              ),
+              // Navigate back ke halaman home
+                  onPressed: () {
+      Navigator.of(context).popUntil((route) => route.isFirst);
+              },
+            )
+          : null,
         actions: [
           Container(
             margin: const EdgeInsets.only(right: 16),
@@ -44,7 +71,7 @@ class TransactionScreen extends StatelessWidget {
                 ),
               ),
               onPressed: () {
-                // Filter functionality
+                // Fungsionalitas filter
               },
             ),
           ),
@@ -86,11 +113,11 @@ class TransactionScreen extends StatelessWidget {
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
                 child: Row(
                   children: [
-                    _buildFilterChip('All', true, primaryColor),
+                    _buildFilterChip('Semua', true, primaryColor),
                     const SizedBox(width: 8),
-                    _buildFilterChip('In Progress', false, primaryColor),
+                    _buildFilterChip('Sedang Proses', false, primaryColor),
                     const SizedBox(width: 8),
-                    _buildFilterChip('Completed', false, primaryColor),
+                    _buildFilterChip('Selesai', false, primaryColor),
                   ],
                 ),
               ),
@@ -162,6 +189,7 @@ class TransactionScreen extends StatelessWidget {
   }
   
   // Tampilan saat tidak ada transaksi
+ // Tampilan saat tidak ada transaksi
   Widget _buildEmptyTransactionView(BuildContext context, Color primaryColor) {
     return Center(
       child: Column(
@@ -183,7 +211,7 @@ class TransactionScreen extends StatelessWidget {
           const SizedBox(height: 24),
           // Pesan
           Text(
-            'No Orders Yet',
+            'Belum Ada Pesanan',
             style: GoogleFonts.poppins(
               color: Colors.black87,
               fontSize: 18,
@@ -192,7 +220,7 @@ class TransactionScreen extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Complete your first payment\nto see your orders here',
+            'Selesaikan pembayaran pertama Anda\nuntuk melihat pesanan di sini',
             textAlign: TextAlign.center,
             style: GoogleFonts.poppins(
               color: Colors.grey[600],
@@ -230,7 +258,7 @@ class TransactionScreen extends StatelessWidget {
               },
               icon: const Icon(Icons.shopping_bag_outlined, color: Colors.white),
               label: Text(
-                'Start Shopping',
+                'Mulai Belanja',
                 style: GoogleFonts.poppins(
                   color: Colors.white,
                   fontWeight: FontWeight.w600,
@@ -262,11 +290,11 @@ class TransactionScreen extends StatelessWidget {
     required Color primaryColor,
   }) {
     // Get status randomly for demo purposes
-    final statuses = ['Delivered', 'In Progress', 'Shipped'];
+    final statuses = ['Dikirim', 'Sedang Diproses', 'Dalam Perjalanan'];
     final status = statuses[DateTime.now().microsecond % 3];
-    final statusColor = status == 'Delivered' 
+    final statusColor = status == 'Dikirim' 
         ? Colors.green[700] 
-        : status == 'In Progress' 
+        : status == 'Sedang Diproses' 
             ? Colors.orange[700] 
             : primaryColor;
     
@@ -301,7 +329,7 @@ class TransactionScreen extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      'Order $orderId',
+                      'Pesanan $orderId',
                       style: GoogleFonts.poppins(
                         fontWeight: FontWeight.w600,
                         fontSize: 14,
@@ -397,7 +425,7 @@ class TransactionScreen extends StatelessWidget {
                 Expanded(
                   child: OutlinedButton(
                     onPressed: () {
-                      // Track order functionality
+                      // Lacak pesanan
                     },
                     style: OutlinedButton.styleFrom(
                       foregroundColor: primaryColor,
@@ -408,7 +436,7 @@ class TransactionScreen extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(vertical: 10),
                     ),
                     child: Text(
-                      'Track Order',
+                      'Lacak Pesanan',
                       style: GoogleFonts.poppins(
                         fontWeight: FontWeight.w500,
                         fontSize: 13,
@@ -420,7 +448,7 @@ class TransactionScreen extends StatelessWidget {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
-                      // Review functionality
+                      // Ulasan
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: primaryColor,
@@ -430,7 +458,7 @@ class TransactionScreen extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(vertical: 10),
                     ),
                     child: Text(
-                      'Leave Review',
+                      'Beri Ulasan',
                       style: GoogleFonts.poppins(
                         color: Colors.white,
                         fontWeight: FontWeight.w500,

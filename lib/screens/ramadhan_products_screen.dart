@@ -17,9 +17,17 @@ class RamadhanProductsScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: const Text('Festival Ramadhan'),
-        backgroundColor: accentColor,
+        centerTitle: true, // Centered title
+        title: Text(
+          'Festival Ramadhan', 
+          style: TextStyle(
+            color: Colors.black87, // Changed to black
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        backgroundColor: Colors.white,
         elevation: 0,
+        iconTheme: IconThemeData(color: primaryColor), // Ensure back button is blue
       ),
       body: SafeArea(
         child: SingleChildScrollView(

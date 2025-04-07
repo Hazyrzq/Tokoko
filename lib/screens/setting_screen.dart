@@ -83,16 +83,15 @@ class SettingScreen extends StatelessWidget {
                 },
               ),
 
-              // Shipping Address
+              // Profile Creator - keeping this option
               _buildSettingItem(
                 context,
-                Icons.location_on_rounded,
-                'Shipping Address',
+                Icons.create_rounded,
+                'Profile Creator',
                 primaryColor,
                 onTap: () {
-                  // Navigate to shipping address screen when implemented
+                  Navigator.pushNamed(context, '/creator_profile');
                 },
-                showBadge: true,
               ),
 
               const SizedBox(height: 24),
@@ -102,13 +101,26 @@ class SettingScreen extends StatelessWidget {
               
               const SizedBox(height: 12),
 
-              // Dark Mode
+              // Help - new item
               _buildSettingItem(
                 context,
-                Icons.dark_mode_rounded,
-                'Dark Mode',
+                Icons.help_outline_rounded,
+                'Help',
                 secondaryColor,
-                showToggle: true,
+                onTap: () {
+                  _showHelpDialog(context);
+                },
+              ),
+
+              // Review App
+              _buildSettingItem(
+                context,
+                Icons.star_rounded,
+                'Review App',
+                secondaryColor,
+                onTap: () {
+                  _launchAppReview(context);
+                },
               ),
 
               // About App
@@ -199,25 +211,7 @@ class SettingScreen extends StatelessWidget {
                 ),
               ),
               
-              // Edit button
-              Container(
-                height: 36,
-                width: 36,
-                decoration: BoxDecoration(
-                  color: primaryColor.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: IconButton(
-                  icon: Icon(
-                    Icons.edit_rounded,
-                    color: primaryColor,
-                    size: 18,
-                  ),
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/edit_profile');
-                  },
-                ),
-              ),
+              // Removed edit button as requested
             ],
           ),
         );
@@ -263,7 +257,6 @@ class SettingScreen extends StatelessWidget {
     Color iconColor, {
     VoidCallback? onTap,
     bool showBadge = false,
-    bool showToggle = false,
   }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -301,40 +294,32 @@ class SettingScreen extends StatelessWidget {
             color: Colors.black87,
           ),
         ),
-        trailing: showToggle
-            ? Switch(
-                value: false, // Implementasi toggle dark mode
-                onChanged: (value) {
-                  // TODO: Implementasi dark mode
-                },
-                activeColor: iconColor,
-              )
-            : Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (showBadge)
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: Colors.red,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Text(
-                        'New',
-                        style: GoogleFonts.poppins(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  const SizedBox(width: 8),
-                  Icon(
-                    Icons.chevron_right_rounded,
-                    color: Colors.grey[400],
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (showBadge)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.red,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  'New',
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w500,
                   ),
-                ],
+                ),
               ),
+            const SizedBox(width: 8),
+            Icon(
+              Icons.chevron_right_rounded,
+              color: Colors.grey[400],
+            ),
+          ],
+        ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
@@ -420,6 +405,289 @@ class SettingScreen extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  // Function untuk menampilkan dialog help
+  void _showHelpDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Row(
+            children: [
+              Icon(
+                Icons.help_outline_rounded,
+                color: const Color(0xFFFF8C00),
+                size: 24,
+              ),
+              const SizedBox(width: 10),
+              Text(
+                'Help Center',
+                style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+              ),
+            ],
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildHelpItem(
+                  'Getting Started',
+                  'Learn the basics of navigating and using our app',
+                  Icons.play_arrow_rounded,
+                ),
+                const Divider(),
+                _buildHelpItem(
+                  'Account Issues',
+                  'Help with login, registration, and profile settings',
+                  Icons.person_rounded,
+                ),
+                const Divider(),
+                _buildHelpItem(
+                  'Payment Problems',
+                  'Assistance with payment methods and transactions',
+                  Icons.payment_rounded,
+                ),
+                const Divider(),
+                _buildHelpItem(
+                  'Contact Support',
+                  'Get in touch with our customer service team',
+                  Icons.support_agent_rounded,
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  'Frequently Asked Questions',
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                _buildFAQItem('How do I reset my password?'),
+                _buildFAQItem('How to update my shipping address?'),
+                _buildFAQItem('Can I cancel my order?'),
+                _buildFAQItem('How to track my order?'),
+              ],
+            ),
+          ),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF2D7BEE),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              child: Text(
+                'Close',
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+        );
+      },
+    );
+  }
+
+  // Widget untuk item bantuan
+  Widget _buildHelpItem(String title, String subtitle, IconData icon) {
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      leading: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: const Color(0xFF2D7BEE).withOpacity(0.1),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Icon(
+          icon,
+          color: const Color(0xFF2D7BEE),
+          size: 20,
+        ),
+      ),
+      title: Text(
+        title,
+        style: GoogleFonts.poppins(
+          fontWeight: FontWeight.w500,
+          fontSize: 14,
+        ),
+      ),
+      subtitle: Text(
+        subtitle,
+        style: GoogleFonts.poppins(
+          fontSize: 12,
+          color: Colors.grey[600],
+        ),
+      ),
+      onTap: () {
+        // Action for each help item
+      },
+    );
+  }
+
+  // Widget untuk item FAQ
+  Widget _buildFAQItem(String question) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            Icons.circle,
+            size: 8,
+            color: const Color(0xFFFF8C00),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              question,
+              style: GoogleFonts.poppins(
+                fontSize: 13,
+                color: Colors.black87,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Function untuk review aplikasi
+  void _launchAppReview(BuildContext context) {
+    // Show a dialog to get user review
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        double rating = 0;
+        String review = '';
+        
+        return AlertDialog(
+          title: Text(
+            'Rate Our App',
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Your feedback helps us improve!',
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    color: Colors.grey[600],
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 20),
+                // Star rating
+                StatefulBuilder(
+                  builder: (context, setState) {
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(
+                        5,
+                        (index) => IconButton(
+                          icon: Icon(
+                            index < rating ? Icons.star : Icons.star_border,
+                            color: const Color(0xFFFF8C00),
+                            size: 30,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              rating = index + 1;
+                            });
+                          },
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 20),
+                // Review text field
+                TextField(
+                  decoration: InputDecoration(
+                    hintText: 'Write your review here...',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    contentPadding: const EdgeInsets.all(10),
+                  ),
+                  maxLines: 4,
+                  onChanged: (value) {
+                    review = value;
+                  },
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text(
+                'Cancel',
+                style: GoogleFonts.poppins(
+                  color: Colors.grey[600],
+                ),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                // Here you would typically send the review to your backend
+                // or open the app store page for a review
+                
+                // For now, just show a thank you message
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      'Thanks for your feedback!',
+                      style: GoogleFonts.poppins(),
+                    ),
+                    backgroundColor: const Color(0xFF2D7BEE),
+                    duration: const Duration(seconds: 2),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF2D7BEE),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              child: Text(
+                'Submit',
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+        );
+      },
     );
   }
 

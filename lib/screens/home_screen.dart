@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'food_category_screen.dart';
 import 'news_screen.dart';
-import 'all_categories_screen.dart';
-import 'ramadhan_products_screen.dart';
+import 'all_categories_screen.dart'; // Import untuk AllCategoriesScreen
+import 'ramadhan_products_screen.dart'; // Import untuk RamadhanProductsScreen
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -15,23 +15,23 @@ class _HomeScreenState extends State<HomeScreen> {
   // Controller untuk page view banner
   final PageController _pageController = PageController();
   int _currentBannerIndex = 0;
-  
+
   // List banner images
   final List<Map<String, dynamic>> _banners = [
     {
       'image': 'assets/images/banner1.png',
       'title': 'SALE UP TO 50%',
-      'icon': Icons.shopping_bag_outlined
+      'icon': Icons.shopping_bag_outlined,
     },
     {
       'image': 'assets/images/banner2.png',
       'title': 'SPECIAL OFFERS',
-      'icon': Icons.local_offer_outlined
+      'icon': Icons.local_offer_outlined,
     },
     {
       'image': 'assets/images/banner1.png',
       'title': 'NEW ARRIVALS',
-      'icon': Icons.new_releases_outlined
+      'icon': Icons.new_releases_outlined,
     },
   ];
 
@@ -90,7 +90,11 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: CircleAvatar(
                               radius: isSmallScreen ? 18 : 22,
                               backgroundColor: secondaryColor,
-                              child: Icon(Icons.person, color: primaryColor, size: isSmallScreen ? 18 : 22),
+                              child: Icon(
+                                Icons.person,
+                                color: primaryColor,
+                                size: isSmallScreen ? 18 : 22,
+                              ),
                             ),
                           ),
                           SizedBox(width: isSmallScreen ? 10 : 14),
@@ -122,49 +126,54 @@ class _HomeScreenState extends State<HomeScreen> {
                         ],
                       ),
                     ),
-                    // Di HomeScreen.dart, gunakan kode ini untuk icon notifikasi:
-
-Stack(
-  children: [
-    Container(
-      decoration: BoxDecoration(
-        color: secondaryColor,
-        shape: BoxShape.circle,
-      ),
-      child: IconButton(
-        icon: Icon(Icons.notifications_none_rounded, color: primaryColor),
-        iconSize: isSmallScreen ? 22 : 24,
-        onPressed: () {
-          // Push new instance of NewsScreen dengan showBackButton = true
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => const NewsScreen(showBackButton: true),
-            ),
-          );
-        },
-      ),
-    ),
-    Positioned(
-      right: 6,
-      top: 6,
-      child: Container(
-        padding: const EdgeInsets.all(4),
-        decoration: BoxDecoration(
-          color: Colors.red,
-          shape: BoxShape.circle,
-        ),
-        child: Text(
-          '${NewsScreen.notificationCount}',
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 8,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-    ),
-  ],
-)
+                    // Replace the existing notification Stack in the left code with this updated one:
+                    Stack(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            color: secondaryColor,
+                            shape: BoxShape.circle,
+                          ),
+                          child: IconButton(
+                            icon: Icon(
+                              Icons.notifications_none_rounded,
+                              color: primaryColor,
+                            ),
+                            iconSize: isSmallScreen ? 22 : 24,
+                            onPressed: () {
+                              // Push new instance of NewsScreen dengan showBackButton = true
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder:
+                                      (context) => const NewsScreen(
+                                        showBackButton: true,
+                                      ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        Positioned(
+                          right: 6,
+                          top: 6,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Text(
+                              '${NewsScreen.notificationCount}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 8,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),
@@ -187,7 +196,10 @@ Stack(
                   child: TextField(
                     decoration: InputDecoration(
                       hintText: 'Cari produk favorit...',
-                      hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
+                      hintStyle: TextStyle(
+                        color: Colors.grey[400],
+                        fontSize: 14,
+                      ),
                       prefixIcon: Icon(Icons.search, color: primaryColor),
                       suffixIcon: Container(
                         margin: const EdgeInsets.all(5),
@@ -197,7 +209,9 @@ Stack(
                         ),
                         child: Icon(Icons.tune, color: primaryColor, size: 20),
                       ),
-                      contentPadding: EdgeInsets.symmetric(vertical: isSmallScreen ? 12.0 : 15.0),
+                      contentPadding: EdgeInsets.symmetric(
+                        vertical: isSmallScreen ? 12.0 : 15.0,
+                      ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(20),
                         borderSide: BorderSide.none,
@@ -208,7 +222,10 @@ Stack(
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(20),
-                        borderSide: BorderSide(color: primaryColor.withOpacity(0.3), width: 1),
+                        borderSide: BorderSide(
+                          color: primaryColor.withOpacity(0.3),
+                          width: 1,
+                        ),
                       ),
                     ),
                   ),
@@ -232,7 +249,9 @@ Stack(
                         },
                         itemBuilder: (context, index) {
                           return Container(
-                            margin: EdgeInsets.symmetric(horizontal: horizontalPadding),
+                            margin: EdgeInsets.symmetric(
+                              horizontal: horizontalPadding,
+                            ),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(16.0),
                               boxShadow: [
@@ -253,25 +272,37 @@ Stack(
                                   return Container(
                                     decoration: BoxDecoration(
                                       gradient: LinearGradient(
-                                        colors: index % 2 == 0 
-                                            ? [primaryColor, primaryColor.withOpacity(0.7)]
-                                            : [accentColor, accentColor.withOpacity(0.7)],
+                                        colors:
+                                            index % 2 == 0
+                                                ? [
+                                                  primaryColor,
+                                                  primaryColor.withOpacity(0.7),
+                                                ]
+                                                : [
+                                                  accentColor,
+                                                  accentColor.withOpacity(0.7),
+                                                ],
                                         begin: Alignment.topLeft,
                                         end: Alignment.bottomRight,
                                       ),
                                     ),
                                     child: Center(
                                       child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
                                         children: [
-                                          Icon(_banners[index]['icon'], size: 40, color: Colors.white),
+                                          Icon(
+                                            _banners[index]['icon'],
+                                            size: 40,
+                                            color: Colors.white,
+                                          ),
                                           const SizedBox(height: 8),
                                           Text(
                                             _banners[index]['title'],
                                             style: const TextStyle(
-                                              color: Colors.white, 
-                                              fontWeight: FontWeight.bold, 
-                                              fontSize: 16
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16,
                                             ),
                                           ),
                                         ],
@@ -297,9 +328,10 @@ Stack(
                           height: 8,
                           width: _currentBannerIndex == index ? 24 : 8,
                           decoration: BoxDecoration(
-                            color: _currentBannerIndex == index 
-                                ? primaryColor 
-                                : Colors.grey.withOpacity(0.3),
+                            color:
+                                _currentBannerIndex == index
+                                    ? primaryColor
+                                    : Colors.grey.withOpacity(0.3),
                             borderRadius: BorderRadius.circular(4),
                           ),
                         ),
@@ -311,7 +343,10 @@ Stack(
 
               // Shopping Category Header - Modern with accent
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 5),
+                padding: EdgeInsets.symmetric(
+                  horizontal: horizontalPadding,
+                  vertical: 5,
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -356,7 +391,11 @@ Stack(
                         children: [
                           const Text('Lihat Semua'),
                           const SizedBox(width: 4),
-                          Icon(Icons.arrow_forward_ios, size: 12, color: primaryColor),
+                          Icon(
+                            Icons.arrow_forward_ios,
+                            size: 12,
+                            color: primaryColor,
+                          ),
                         ],
                       ),
                     ),
@@ -378,7 +417,8 @@ Stack(
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const FoodCategoryScreen(),
+                                builder:
+                                    (context) => const FoodCategoryScreen(),
                               ),
                             );
                           },
@@ -406,7 +446,7 @@ Stack(
                         ),
                       ],
                     );
-                  }
+                  },
                 ),
               ),
               const SizedBox(height: 20),
@@ -446,7 +486,8 @@ Stack(
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const RamadhanProductsScreen(),
+                                builder:
+                                    (context) => const RamadhanProductsScreen(),
                               ),
                             );
                           },
@@ -461,7 +502,11 @@ Stack(
                             children: [
                               const Text('Lihat Semua'),
                               const SizedBox(width: 4),
-                              Icon(Icons.arrow_forward_ios, size: 12, color: accentColor),
+                              Icon(
+                                Icons.arrow_forward_ios,
+                                size: 12,
+                                color: accentColor,
+                              ),
                             ],
                           ),
                         ),
@@ -519,7 +564,8 @@ Stack(
           ),
         ),
       ),
-      // Bottom navigation bar and floating action button would go here in a real app
+      // Hapus floatingActionButton
+      // Hapus bottomNavigationBar
     );
   }
 
@@ -531,7 +577,7 @@ Stack(
     required double width,
   }) {
     final bool isNameLong = name.length > 6;
-    
+
     return Container(
       width: width,
       height: 120,
@@ -628,7 +674,11 @@ Stack(
                     fit: BoxFit.contain,
                     errorBuilder: (context, error, stackTrace) {
                       return Center(
-                        child: Icon(Icons.image_not_supported, size: 30, color: Colors.grey[400]),
+                        child: Icon(
+                          Icons.image_not_supported,
+                          size: 30,
+                          color: Colors.grey[400],
+                        ),
                       );
                     },
                   ),

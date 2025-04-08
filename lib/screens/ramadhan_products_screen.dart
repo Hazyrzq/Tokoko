@@ -1,8 +1,18 @@
 import 'package:flutter/material.dart';
+import '../widgets/cart_badge.dart';
+import '../services/cart_service.dart';
+import '../models/product.dart';
 
-class RamadhanProductsScreen extends StatelessWidget {
+class RamadhanProductsScreen extends StatefulWidget {
   const RamadhanProductsScreen({Key? key}) : super(key: key);
 
+  @override
+  State<RamadhanProductsScreen> createState() => _RamadhanProductsScreenState();
+}
+
+class _RamadhanProductsScreenState extends State<RamadhanProductsScreen> {
+  final CartService _cartService = CartService();
+  
   @override
   Widget build(BuildContext context) {
     // Mendapatkan ukuran layar untuk responsivitas
@@ -28,6 +38,20 @@ class RamadhanProductsScreen extends StatelessWidget {
         backgroundColor: Colors.white,
         elevation: 0,
         iconTheme: IconThemeData(color: primaryColor), // Ensure back button is blue
+        actions: [
+          // Cart icon with badge
+          Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: IconButton(
+              icon: CartBadge(
+                child: const Icon(Icons.shopping_cart, color: Colors.black),
+              ),
+              onPressed: () {
+                Navigator.pushNamed(context, '/cart');
+              },
+            ),
+          ),
+        ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -165,6 +189,7 @@ class RamadhanProductsScreen extends StatelessWidget {
                     String image;
                     String originalPrice;
                     int discount;
+                    int id = index + 100; // Memberikan ID unik untuk setiap produk
                     
                     // Mendefinisikan data berdasarkan index
                     switch (index % 8) {
@@ -227,10 +252,11 @@ class RamadhanProductsScreen extends StatelessWidget {
                     }
                     
                     return _buildProductItem(
-                      name,
-                      price,
-                      image,
-                      originalPrice,
+                      id: id,
+                      name: name,
+                      price: price,
+                      imagePath: image,
+                      originalPrice: originalPrice,
                       discount: discount,
                       accentColor: accentColor,
                     );
@@ -243,17 +269,35 @@ class RamadhanProductsScreen extends StatelessWidget {
           ),
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // Navigate to Shopping Cart page
+          Navigator.pushNamed(context, '/cart');
+        },
+        backgroundColor: Colors.orange,
+        // Use CartBadge to show item count
+        child: CartBadge(
+          badgeColor: Colors.blue,
+          child: const Icon(Icons.shopping_cart),
+        ),
+        elevation: 6,
+        shape: const CircleBorder(),
+      ),
     );
   }
 
-  Widget _buildProductItem(
-    String name,
-    String price,
-    String imagePath,
-    String originalPrice, {
+  Widget _buildProductItem({
+    required int id,
+    required String name,
+    required String price,
+    required String imagePath,
+    required String originalPrice,
     int? discount,
     required Color accentColor,
   }) {
+    // Convert price dari string "27.000" ke double 27000.0 untuk model Product
+    final double priceValue = double.parse(price.replaceAll('.', ''));
+    
     return Container(
       padding: const EdgeInsets.all(12.0),
       decoration: BoxDecoration(
@@ -365,20 +409,53 @@ class RamadhanProductsScreen extends StatelessWidget {
                 ),
               ),
               const Spacer(),
-              Container(
-                padding: const EdgeInsets.all(5),
-                decoration: BoxDecoration(
-                  color: accentColor,
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: accentColor.withOpacity(0.4),
-                      blurRadius: 5,
-                      offset: const Offset(0, 2),
+              InkWell(
+                onTap: () {
+                  // Buat objek Product
+                  final product = Product(
+                    id: id.toString(),
+                    name: name,
+                    price: priceValue,
+                    imageUrl: imagePath,
+                    subtitle: "Festival Ramadhan",
+                    rating: 5.0, // Default rating
+                  );
+                  
+                  // Tambahkan ke keranjang
+                  _cartService.addProduct(product);
+                  
+                  // Refresh UI
+                  setState(() {});
+                  
+                  // Tampilkan snackbar konfirmasi
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('$name telah ditambahkan ke keranjang'),
+                      duration: const Duration(seconds: 2),
+                      action: SnackBarAction(
+                        label: 'LIHAT',
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/cart');
+                        },
+                      ),
                     ),
-                  ],
+                  );
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(5),
+                  decoration: BoxDecoration(
+                    color: accentColor,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: accentColor.withOpacity(0.4),
+                        blurRadius: 5,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: const Icon(Icons.add, color: Colors.white, size: 16),
                 ),
-                child: const Icon(Icons.add, color: Colors.white, size: 16),
               ),
             ],
           ),

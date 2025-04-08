@@ -40,21 +40,7 @@ class NewsScreen extends StatelessWidget {
               onPressed: () => Navigator.of(context).pop(),
             )
           : null,
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16.0),
-            child: IconButton(
-              icon: Icon(Icons.mark_email_read_rounded, color: primaryColor),
-              onPressed: () {
-                // Mark all as read functionality
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('All notifications marked as read')),
-                );
-              },
             ),
-          ),
-        ],
-      ),
       body: Stack(
         children: [
           // Background decorations

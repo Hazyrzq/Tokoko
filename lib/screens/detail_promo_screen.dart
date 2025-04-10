@@ -1,7 +1,17 @@
 import 'package:flutter/material.dart';
+import '../widgets/cart_badge.dart';
+import '../services/cart_service.dart';
+import '../models/product.dart';
 
-class DetailPromoScreen extends StatelessWidget {
+class DetailPromoScreen extends StatefulWidget {
   const DetailPromoScreen({Key? key}) : super(key: key);
+
+  @override
+  State<DetailPromoScreen> createState() => _DetailPromoScreenState();
+}
+
+class _DetailPromoScreenState extends State<DetailPromoScreen> {
+  final CartService _cartService = CartService();
 
   @override
   Widget build(BuildContext context) {
@@ -24,13 +34,17 @@ class DetailPromoScreen extends StatelessWidget {
         ),
         centerTitle: true,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.search, color: Colors.black54),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: const Icon(Icons.share, color: Colors.black54),
-            onPressed: () {},
+          // Tombol keranjang dengan badge
+          Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: IconButton(
+              icon: CartBadge(
+                child: const Icon(Icons.shopping_cart, color: Colors.black54),
+              ),
+              onPressed: () {
+                Navigator.pushNamed(context, '/cart');
+              },
+            ),
           ),
         ],
       ),
@@ -339,21 +353,53 @@ class DetailPromoScreen extends StatelessWidget {
                                     ),
                                   ),
                                   
-                                  // Add Button
+                                  // Add Button dengan fungsi tambah ke keranjang
                                   Positioned(
                                     top: 8,
                                     right: 8,
-                                    child: Container(
-                                      width: 36,
-                                      height: 36,
-                                      decoration: const BoxDecoration(
-                                        color: Colors.blue,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: const Icon(
-                                        Icons.add,
-                                        color: Colors.white,
-                                        size: 24,
+                                    child: InkWell(
+                                      onTap: () {
+                                        final product = Product(
+                                          id: '1',
+                                          name: 'Indomie Mi Instan Goreng Plus Special 80g',
+                                          price: 3200.0,
+                                          imageUrl: 'assets/images/indomie_pack.png',
+                                          subtitle: '80g',
+                                          rating: 4.8,
+                                        );
+                                        
+                                        // Tambah ke keranjang
+                                        _cartService.addProduct(product);
+                                        
+                                        // Refresh UI
+                                        setState(() {});
+                                        
+                                        // Tampilkan notifikasi
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(
+                                            content: const Text('Produk telah ditambahkan ke keranjang'),
+                                            duration: const Duration(seconds: 2),
+                                            action: SnackBarAction(
+                                              label: 'LIHAT',
+                                              onPressed: () {
+                                                Navigator.pushNamed(context, '/cart');
+                                              },
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      child: Container(
+                                        width: 36,
+                                        height: 36,
+                                        decoration: const BoxDecoration(
+                                          color: Colors.blue,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: const Icon(
+                                          Icons.add,
+                                          color: Colors.white,
+                                          size: 24,
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -400,7 +446,7 @@ class DetailPromoScreen extends StatelessWidget {
                                 color: Colors.red,
                                 padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
                                 child: const Text(
-                                  'SPECIAL PRICE CARTON',
+                                  'HARGA SPESIAL KARTON',
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold,
@@ -472,6 +518,59 @@ class DetailPromoScreen extends StatelessWidget {
                                         fontSize: 12,
                                       ),
                                     ),
+                                    const SizedBox(height: 12),
+                                    // Tambah tombol "Tambah ke Keranjang" seperti di FoodCategoryScreen
+                                    InkWell(
+                                      onTap: () {
+                                        // Buat objek Product 
+                                        final product = Product(
+                                          id: '1',
+                                          name: 'Indomie Mi Instan Goreng Plus Special 80g',
+                                          price: 3200.0,
+                                          imageUrl: 'assets/images/indomie_pack.png',
+                                          subtitle: '80g',
+                                          rating: 4.8,
+                                        );
+                                        
+                                        // Tambah ke keranjang
+                                        _cartService.addProduct(product);
+                                        
+                                        // Refresh UI
+                                        setState(() {});
+                                        
+                                        // Tampilkan notifikasi
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(
+                                            content: const Text('Produk telah ditambahkan ke keranjang'),
+                                            duration: const Duration(seconds: 2),
+                                            action: SnackBarAction(
+                                              label: 'LIHAT',
+                                              onPressed: () {
+                                                Navigator.pushNamed(context, '/cart');
+                                              },
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      child: Container(
+                                        width: double.infinity,
+                                        height: 36,
+                                        decoration: BoxDecoration(
+                                          color: Colors.blue,
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                        child: const Center(
+                                          child: Text(
+                                            "Tambah ke Keranjang",
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ),
@@ -490,58 +589,7 @@ class DetailPromoScreen extends StatelessWidget {
           ),
         ],
       ),
-      
-      // Floating Sort and Filter Buttons
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 80),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 4,
-                spreadRadius: 1,
-                offset: const Offset(0, 1),
-              ),
-            ],
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextButton.icon(
-                onPressed: () {},
-                icon: const Icon(Icons.sort, size: 18, color: Colors.black87),
-                label: const Text(
-                  'Urutkan',
-                  style: TextStyle(color: Colors.black87),
-                ),
-                style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                ),
-              ),
-              Container(
-                height: 24,
-                width: 1,
-                color: Colors.grey.shade300,
-              ),
-              TextButton.icon(
-                onPressed: () {},
-                icon: const Icon(Icons.filter_list, size: 18, color: Colors.black87),
-                label: const Text(
-                  'Filter',
-                  style: TextStyle(color: Colors.black87),
-                ),
-                style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+     
       
       // Bottom Cart Bar
       bottomNavigationBar: Container(
@@ -561,12 +609,12 @@ class DetailPromoScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
-                children: const [
-                  Icon(Icons.shopping_cart, color: Colors.black, size: 24),
-                  SizedBox(width: 8),
+                children: [
+                  const Icon(Icons.shopping_cart, color: Colors.black, size: 24),
+                  const SizedBox(width: 8),
                   Text(
-                    'Keranjang\n(1 Barang)',
-                    style: TextStyle(
+                    'Keranjang\n(${_cartService.itemCount} Barang)',
+                    style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
                       color: Colors.black,
@@ -576,11 +624,11 @@ class DetailPromoScreen extends StatelessWidget {
               ),
             ),
             const Spacer(),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Text(
-                'Rp47.500',
-                style: TextStyle(
+                'Rp${_cartService.totalAmount.toStringAsFixed(0)}',
+                style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: Colors.black,

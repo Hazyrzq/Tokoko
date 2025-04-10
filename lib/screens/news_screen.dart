@@ -78,11 +78,6 @@ class NewsScreen extends StatelessWidget {
                   children: [
                     _buildFilterChip('All', true, primaryColor),
                     const SizedBox(width: 8),
-                    _buildFilterChip('Promos', false, primaryColor),
-                    const SizedBox(width: 8),
-                    _buildFilterChip('Updates', false, primaryColor),
-                    const SizedBox(width: 8),
-                    _buildFilterChip('Orders', false, primaryColor),
                   ],
                 ),
               ),

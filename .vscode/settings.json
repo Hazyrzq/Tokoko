@@ -1,3 +1,4 @@
 {
-    "cmake.sourceDirectory": "C:/Users/rizqi/project/linux"
+  "cmake.sourceDirectory": "C:/Users/rizqi/project/linux",
+  "cmake.ignoreCMakeListsMissing": true
 }

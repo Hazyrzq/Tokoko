@@ -62,29 +62,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
               },
             )
           : null,
-        actions: [
-          Container(
-            margin: const EdgeInsets.only(right: 16),
-            child: IconButton(
-              icon: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: primaryColor.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.filter_list_rounded,
-                  color: primaryColor,
-                  size: 20,
-                ),
-              ),
-              onPressed: () {
-                // Fungsionalitas filter
-              },
-            ),
           ),
-        ],
-      ),
       body: Stack(
         children: [
           // Background decorations

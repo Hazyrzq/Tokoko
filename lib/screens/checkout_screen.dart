@@ -186,35 +186,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                     ),
                                   ],
                                 ),
-                                OutlinedButton.icon(
-                                  onPressed: () {
-                                    // Add voucher functionality
-                                  },
-                                  icon: Icon(
-                                    Icons.local_offer_outlined,
-                                    size: 16,
-                                    color: primaryColor,
-                                  ),
-                                  label: Text(
-                                    'Add Voucher',
-                                    style: GoogleFonts.poppins(
-                                      color: primaryColor,
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                  style: OutlinedButton.styleFrom(
-                                    foregroundColor: primaryColor,
-                                    side: BorderSide(color: primaryColor),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 0,
-                                    ),
-                                  ),
-                                ),
                               ],
                             ),
 

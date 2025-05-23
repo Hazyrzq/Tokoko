@@ -235,6 +235,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                   ),
+
+                  // 1
                   // Row untuk notification dan cart
                   Row(
                     children: [
@@ -290,7 +292,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
-
+            
+// 1
             // Search Bar - Modern with shadow
             Padding(
               padding: EdgeInsets.all(horizontalPadding),
@@ -663,6 +666,8 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
+  // 2
   
   // Mendapatkan warna berdasarkan kategori
   Color _getCategoryColor(String category) {

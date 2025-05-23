@@ -1369,6 +1369,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         child: Text(
           item.name.substring(0, 1).toUpperCase(),
           style: GoogleFonts.poppins(
+            
             fontSize: 20,
             fontWeight: FontWeight.bold,
             color: Colors.black54,

@@ -11,6 +11,7 @@ import 'drinks_category_screen.dart';
 import '../services/cart_service.dart';
 import '../models/product.dart';
 import '../widgets/cart_badge.dart';
+import '../providers/auth_provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -187,113 +188,120 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ],
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Row(
-                      children: [
-                        // Profile Image from ProfileProvider
-                        Container(
-                          padding: const EdgeInsets.all(2),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(color: primaryColor, width: 2),
-                          ),
-                          child: _buildProfileImage(
-                            profileProvider,
-                            isSmallScreen ? 18 : 22,
-                            primaryColor,
-                          ),
-                        ),
-                        SizedBox(width: isSmallScreen ? 10 : 14),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Halo, ${profileProvider.nama}!',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: isSmallScreen ? 14 : 16,
-                                  color: Colors.black87,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              Text(
-                                'Pesan kebutuhan favorit kamu',
-                                style: TextStyle(
-                                  fontSize: isSmallScreen ? 12 : 13,
-                                  color: Colors.black54,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+              child: Consumer2<ProfileProvider, AuthProvider>(
+                builder: (context, profileProvider, authProvider, child) {
+                  // Use Firebase user data if available, fallback to profile provider
+                  String displayName = authProvider.user?.nama ?? profileProvider.nama;
+                  String displayPhotoUrl = authProvider.user?.fotoProfilUrl ?? profileProvider.fotoProfilPath;
 
-                  // 1
-                  // Row untuk notification dan cart
-                  Row(
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      // Notification icon with counter
-                      Stack(
-                        children: [
-                          Container(
-                            decoration: BoxDecoration(
-                              color: secondaryColor,
-                              shape: BoxShape.circle,
-                            ),
-                            child: IconButton(
-                              icon: Icon(
-                                Icons.notifications_none_rounded,
-                                color: primaryColor,
+                      Expanded(
+                        child: Row(
+                          children: [
+                            // Profile Image from AuthProvider/ProfileProvider
+                            Container(
+                              padding: const EdgeInsets.all(2),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(color: primaryColor, width: 2),
                               ),
-                              iconSize: isSmallScreen ? 22 : 24,
-                              onPressed: () {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder:
-                                        (context) => const NewsScreen(
+                              child: _buildProfileImageHeader(
+                                displayPhotoUrl,
+                                displayName,
+                                isSmallScreen ? 18 : 22,
+                                primaryColor,
+                              ),
+                            ),
+                            SizedBox(width: isSmallScreen ? 10 : 14),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Halo, $displayName!',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: isSmallScreen ? 14 : 16,
+                                      color: Colors.black87,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  Text(
+                                    'Pesan kebutuhan favorit kamu',
+                                    style: TextStyle(
+                                      fontSize: isSmallScreen ? 12 : 13,
+                                      color: Colors.black54,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      // Row untuk notification dan cart
+                      Row(
+                        children: [
+                          // Notification icon with counter
+                          Stack(
+                            children: [
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: secondaryColor,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: IconButton(
+                                  icon: Icon(
+                                    Icons.notifications_none_rounded,
+                                    color: primaryColor,
+                                  ),
+                                  iconSize: isSmallScreen ? 22 : 24,
+                                  onPressed: () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (context) => const NewsScreen(
                                           showBackButton: true,
                                         ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                          Positioned(
-                            right: 6,
-                            top: 6,
-                            child: Container(
-                              padding: const EdgeInsets.all(4),
-                              decoration: BoxDecoration(
-                                color: Colors.red,
-                                shape: BoxShape.circle,
-                              ),
-                              child: Text(
-                                '${NewsScreen.notificationCount}',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 8,
-                                  fontWeight: FontWeight.bold,
+                                      ),
+                                    );
+                                  },
                                 ),
                               ),
-                            ),
+                              Positioned(
+                                right: 6,
+                                top: 6,
+                                child: Container(
+                                  padding: const EdgeInsets.all(4),
+                                  decoration: BoxDecoration(
+                                    color: Colors.red,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Text(
+                                    '${NewsScreen.notificationCount}',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 8,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
                     ],
-                  ),
-                ],
+                  );
+                },
               ),
             ),
             
-// 1
+            // 1
             // Search Bar - Modern with shadow
             Padding(
               padding: EdgeInsets.all(horizontalPadding),
@@ -319,11 +327,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     prefixIcon: Icon(Icons.search, color: primaryColor),
                     suffixIcon: _searchController.text.isNotEmpty
-  ? IconButton(
-      icon: Icon(Icons.clear, color: Colors.grey[400], size: 20),
-      onPressed: _clearSearch,
-    )
-  : null,
+                    ? IconButton(
+                        icon: Icon(Icons.clear, color: Colors.grey[400], size: 20),
+                        onPressed: _clearSearch,
+                      )
+                    : null,
                     contentPadding: EdgeInsets.symmetric(
                       vertical: isSmallScreen ? 12.0 : 15.0,
                     ),
@@ -364,7 +372,83 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-  
+
+  // Method untuk membangun gambar profil di header - Updated untuk Firebase
+  Widget _buildProfileImageHeader(
+      String? photoUrl,
+      String name,
+      double radius,
+      Color primaryColor,
+      ) {
+    try {
+      // If we have a Firebase Storage URL
+      if (photoUrl != null && photoUrl.startsWith('http')) {
+        return CircleAvatar(
+          radius: radius,
+          backgroundColor: const Color(0xFFE3F2FD),
+          backgroundImage: NetworkImage(photoUrl),
+          onBackgroundImageError: (_, __) {
+            // Error handler akan fallback ke widget dibawah
+          },
+          child: null,
+        );
+      }
+      // If it's an asset image
+      else if (photoUrl != null && photoUrl.startsWith('assets/')) {
+        return CircleAvatar(
+          radius: radius,
+          backgroundColor: const Color(0xFFE3F2FD),
+          backgroundImage: AssetImage(photoUrl),
+          onBackgroundImageError: (_, __) {
+            // Error handler akan fallback ke widget dibawah
+          },
+        );
+      }
+      // If it's a local file
+      else if (photoUrl != null && photoUrl.isNotEmpty && !photoUrl.startsWith('assets/')) {
+        return CircleAvatar(
+          radius: radius,
+          backgroundColor: const Color(0xFFE3F2FD),
+          backgroundImage: FileImage(File(photoUrl)),
+          onBackgroundImageError: (_, __) {
+            // Error handler akan fallback ke widget dibawah
+          },
+        );
+      }
+      // Default avatar with initials or icon
+      else {
+        return _buildDefaultAvatarHeader(name, radius, primaryColor);
+      }
+    } catch (e) {
+      // If any error occurs, show default avatar
+      return _buildDefaultAvatarHeader(name, radius, primaryColor);
+    }
+  }
+
+  // Method untuk avatar default di header
+  Widget _buildDefaultAvatarHeader(String name, double radius, Color primaryColor) {
+    if (name.isEmpty || name == 'Guest User') {
+      return CircleAvatar(
+        radius: radius,
+        backgroundColor: const Color(0xFFE3F2FD),
+        child: Icon(Icons.person, color: primaryColor, size: radius),
+      );
+    }
+
+    return CircleAvatar(
+      radius: radius,
+      backgroundColor: primaryColor,
+      child: Text(
+        name[0].toUpperCase(),
+        style: TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+          fontSize: radius * 0.8,
+        ),
+      ),
+    );
+  }
+
   // Membangun tampilan hasil pencarian
   Widget _buildSearchResults(Color accentColor, double horizontalPadding) {
     if (_searchResults.isEmpty) {

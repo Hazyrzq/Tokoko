@@ -8,6 +8,7 @@ import 'firebase_options.dart';
 import 'providers/cart_provider.dart';
 import 'providers/profile_provider.dart';
 import 'providers/auth_provider.dart'; // Provider baru untuk authentication
+import 'providers/location_provider.dart';
 
 // Import semua screen
 import 'screens/splash_screen.dart';
@@ -52,6 +53,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => AuthProvider()), // Provider untuk auth
         ChangeNotifierProvider(create: (context) => CartProvider()),
         ChangeNotifierProvider(create: (context) => ProfileProvider()),
+        ChangeNotifierProvider(create: (_) => LocationProvider()),
       ],
       child: MaterialApp(
         title: 'TokoKu',

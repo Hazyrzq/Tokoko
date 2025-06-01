@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:transparent_image/transparent_image.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
 import '../services/cart_service.dart';
 import '../models/cart_item.dart';
+import '../providers/location_provider.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({Key? key}) : super(key: key);
@@ -17,14 +19,19 @@ class _CartScreenState extends State<CartScreen> {
   // Start with empty address
   String deliveryAddress = '';
   final TextEditingController _addressController = TextEditingController();
-  
+
   @override
   void initState() {
     super.initState();
     // Load saved address if exists
     _loadSavedAddress();
+    // Initialize location service
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final locationProvider = Provider.of<LocationProvider>(context, listen: false);
+      locationProvider.initializeLocationService();
+    });
   }
-  
+
   // Method to load saved address from SharedPreferences
   Future<void> _loadSavedAddress() async {
     final prefs = await SharedPreferences.getInstance();
@@ -32,7 +39,7 @@ class _CartScreenState extends State<CartScreen> {
       deliveryAddress = prefs.getString('user_address') ?? '';
     });
   }
-  
+
   // Method to save address to SharedPreferences
   Future<void> _saveAddress(String address) async {
     final prefs = await SharedPreferences.getInstance();
@@ -49,7 +56,7 @@ class _CartScreenState extends State<CartScreen> {
   Widget build(BuildContext context) {
     final primaryColor = const Color(0xFF2D7BEE);
     final secondaryColor = const Color(0xFFFF8C00);
-    
+
     // Buat listener untuk perubahan pada CartService
     return AnimatedBuilder(
       animation: _cartService,
@@ -76,7 +83,7 @@ class _CartScreenState extends State<CartScreen> {
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
-                  Icons.arrow_back_ios_new_rounded, 
+                  Icons.arrow_back_ios_new_rounded,
                   color: primaryColor,
                   size: 16,
                 ),
@@ -111,7 +118,7 @@ class _CartScreenState extends State<CartScreen> {
                   ),
                 ),
               ),
-              
+
               // Main content
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -144,20 +151,20 @@ class _CartScreenState extends State<CartScreen> {
                             ],
                           ),
                         ),
-                        
+
                         // Delete button
                         TextButton.icon(
                           onPressed: _cartService.itemCount == 0
                               ? null
                               : () {
-                                // Implementasi fungsi kosongkan keranjang
-                                showDialog(
-                                  context: context,
-                                  builder: (context) => _buildClearCartDialog(context, primaryColor),
-                                );
-                              },
+                            // Implementasi fungsi kosongkan keranjang
+                            showDialog(
+                              context: context,
+                              builder: (context) => _buildClearCartDialog(context, primaryColor),
+                            );
+                          },
                           icon: Icon(
-                            Icons.delete_outline, 
+                            Icons.delete_outline,
                             color: _cartService.itemCount == 0 ? Colors.grey[400] : Colors.red[400],
                             size: 18,
                           ),
@@ -177,7 +184,7 @@ class _CartScreenState extends State<CartScreen> {
                     ),
                   ),
 
-                  // Delivery address section - Updated to show address input if no address is saved
+                  // Delivery address section - Updated with GPS support
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                     child: Container(
@@ -223,22 +230,22 @@ class _CartScreenState extends State<CartScreen> {
                                   ),
                                   const SizedBox(height: 4),
                                   deliveryAddress.isEmpty
-                                    ? Text(
-                                        'Please add a delivery address',
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 12,
-                                          color: Colors.grey[600],
-                                          fontStyle: FontStyle.italic,
-                                        ),
-                                      )
-                                    : Text(
-                                        deliveryAddress,
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 12,
-                                          color: Colors.grey[600],
-                                          height: 1.5,
-                                        ),
-                                      ),
+                                      ? Text(
+                                    'Please add a delivery address',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 12,
+                                      color: Colors.grey[600],
+                                      fontStyle: FontStyle.italic,
+                                    ),
+                                  )
+                                      : Text(
+                                    deliveryAddress,
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 12,
+                                      color: Colors.grey[600],
+                                      height: 1.5,
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
@@ -256,7 +263,7 @@ class _CartScreenState extends State<CartScreen> {
                                 ),
                               ),
                               onPressed: () {
-                                // Show dialog to add/edit address
+                                // Show dialog to add/edit address with GPS option
                                 _showEditAddressDialog(context, primaryColor);
                               },
                               constraints: const BoxConstraints(),
@@ -285,81 +292,186 @@ class _CartScreenState extends State<CartScreen> {
       },
     );
   }
-  
-  // Updated method to show edit address dialog
+
+  // Updated method to show edit address dialog with GPS integration
   void _showEditAddressDialog(BuildContext context, Color primaryColor) {
     // Set the initial value of the text controller to current address
     _addressController.text = deliveryAddress;
-    
+
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        title: Text(
-          deliveryAddress.isEmpty ? 'Add Delivery Address' : 'Edit Delivery Address',
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-            color: Colors.black87,
-          ),
-        ),
-        content: TextField(
-          controller: _addressController,
-          maxLines: 3,
-          decoration: InputDecoration(
-            hintText: 'Enter your delivery address',
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.grey[300]!),
+      builder: (context) => Consumer<LocationProvider>(
+        builder: (context, locationProvider, child) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
             ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: primaryColor, width: 2),
-            ),
-            contentPadding: const EdgeInsets.all(16),
-          ),
-          style: GoogleFonts.poppins(
-            fontSize: 14,
-            color: Colors.black87,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              'Cancel',
+            title: Text(
+              deliveryAddress.isEmpty ? 'Add Delivery Address' : 'Edit Delivery Address',
               style: GoogleFonts.poppins(
-                color: Colors.grey[600],
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                color: Colors.black87,
               ),
             ),
-          ),
-          TextButton(
-            onPressed: () {
-              // Update and save the address
-              final newAddress = _addressController.text;
-              setState(() {
-                deliveryAddress = newAddress;
-              });
-              // Save to SharedPreferences to persist
-              _saveAddress(newAddress);
-              Navigator.pop(context);
-            },
-            child: Text(
-              'Save',
-              style: GoogleFonts.poppins(
-                color: primaryColor,
-                fontWeight: FontWeight.w600,
-              ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // GPS Button
+                Container(
+                  width: double.infinity,
+                  margin: const EdgeInsets.only(bottom: 16),
+                  child: ElevatedButton.icon(
+                    onPressed: locationProvider.isLoading
+                        ? null
+                        : () async {
+                      // Get current location
+                      bool success = await locationProvider.getCurrentLocation();
+                      if (success && locationProvider.currentAddress != null) {
+                        setState(() {
+                          _addressController.text = locationProvider.currentAddress!;
+                        });
+                      }
+                    },
+                    icon: locationProvider.isLoading
+                        ? SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                        : Icon(Icons.my_location, size: 18),
+                    label: Text(
+                      locationProvider.isLoading
+                          ? 'Getting Location...'
+                          : '📍 Use Current Location',
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: primaryColor.withOpacity(0.1),
+                      foregroundColor: primaryColor,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        side: BorderSide(color: primaryColor.withOpacity(0.3)),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                  ),
+                ),
+
+                // Error message if GPS fails
+                if (locationProvider.errorMessage != null)
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    margin: const EdgeInsets.only(bottom: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.red[50],
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.red[200]!),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.error_outline, color: Colors.red[600], size: 16),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            locationProvider.errorMessage!,
+                            style: GoogleFonts.poppins(
+                              fontSize: 12,
+                              color: Colors.red[600],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                // Manual address input
+                TextField(
+                  controller: _addressController,
+                  maxLines: 3,
+                  decoration: InputDecoration(
+                    hintText: 'Enter your delivery address',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: Colors.grey[300]!),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: primaryColor, width: 2),
+                    ),
+                    contentPadding: const EdgeInsets.all(16),
+                  ),
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    color: Colors.black87,
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
+            actions: [
+              TextButton(
+                onPressed: () {
+                  // Clear any errors when closing
+                  locationProvider.clearError();
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  'Cancel',
+                  style: GoogleFonts.poppins(
+                    color: Colors.grey[600],
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                  // Update and save the address
+                  final newAddress = _addressController.text;
+                  if (newAddress.trim().isNotEmpty) {
+                    setState(() {
+                      deliveryAddress = newAddress;
+                    });
+                    // Save to SharedPreferences to persist
+                    _saveAddress(newAddress);
+                    // Clear any errors
+                    locationProvider.clearError();
+                    Navigator.pop(context);
+                  } else {
+                    // Show error if address is empty
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          'Please enter a delivery address',
+                          style: GoogleFonts.poppins(),
+                        ),
+                        backgroundColor: Colors.red[400],
+                      ),
+                    );
+                  }
+                },
+                child: Text(
+                  'Save',
+                  style: GoogleFonts.poppins(
+                    color: primaryColor,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
-  
+
   Widget _buildEmptyCart(Color primaryColor) {
     return Center(
       child: Column(
@@ -442,7 +554,7 @@ class _CartScreenState extends State<CartScreen> {
       ),
     );
   }
-  
+
   // UPDATED: Cart items with enhanced price display showing multiplication
   Widget _buildCartItems(Color primaryColor) {
     return ListView.builder(
@@ -562,7 +674,7 @@ class _CartScreenState extends State<CartScreen> {
                         ],
                       ),
                     ),
-                    
+
                     // Enhanced subtotal with calculation shown
                     if (item.quantity > 1)
                       Padding(
@@ -596,7 +708,7 @@ class _CartScreenState extends State<CartScreen> {
                         ),
                       )
                     else
-                      // Just show price for single quantity
+                    // Just show price for single quantity
                       Padding(
                         padding: const EdgeInsets.only(top: 8.0),
                         child: Text(
@@ -617,12 +729,12 @@ class _CartScreenState extends State<CartScreen> {
       },
     );
   }
-  
+
   // UPDATED: Enhanced checkout section with a more detailed summary
   Widget _buildCheckoutSection(Color primaryColor) {
     // Check if address is empty or cart is empty to disable checkout button
     bool isCheckoutDisabled = _cartService.itemCount == 0 || deliveryAddress.isEmpty;
-    
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -703,9 +815,9 @@ class _CartScreenState extends State<CartScreen> {
               ),
             ],
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // Address warning if empty
           if (deliveryAddress.isEmpty && _cartService.itemCount > 0)
             Padding(
@@ -719,7 +831,7 @@ class _CartScreenState extends State<CartScreen> {
                 ),
               ),
             ),
-          
+
           // Checkout button
           SizedBox(
             width: double.infinity,
@@ -737,26 +849,26 @@ class _CartScreenState extends State<CartScreen> {
                 boxShadow: isCheckoutDisabled
                     ? []
                     : [
-                        BoxShadow(
-                          color: primaryColor.withOpacity(0.3),
-                          blurRadius: 8,
-                          spreadRadius: 0,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
+                  BoxShadow(
+                    color: primaryColor.withOpacity(0.3),
+                    blurRadius: 8,
+                    spreadRadius: 0,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
               child: ElevatedButton.icon(
                 onPressed: isCheckoutDisabled
                     ? null
                     : () {
-                        // Navigate to checkout with saved address
-                        // Pass the address to the checkout screen
-                        Navigator.pushNamed(
-                          context, 
-                          '/checkout',
-                          arguments: {'address': deliveryAddress}
-                        );
-                      },
+                  // Navigate to checkout with saved address
+                  // Pass the address to the checkout screen
+                  Navigator.pushNamed(
+                      context,
+                      '/checkout',
+                      arguments: {'address': deliveryAddress}
+                  );
+                },
                 icon: const Icon(Icons.shopping_cart_checkout_rounded, color: Colors.white),
                 label: Text(
                   'Proceed to Checkout',
@@ -782,7 +894,7 @@ class _CartScreenState extends State<CartScreen> {
       ),
     );
   }
-  
+
   Widget _buildClearCartDialog(BuildContext context, Color primaryColor) {
     return AlertDialog(
       shape: RoundedRectangleBorder(

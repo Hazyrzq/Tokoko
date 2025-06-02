@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import '../services/cart_service.dart';
 import '../services/transaction_service.dart';
 import '../models/cart_item.dart';
 import 'package:transparent_image/transparent_image.dart';
 import '../screens/transaction_screen.dart'; // Adjust the import path as needed
+import '../providers/auth_provider.dart';
 
 class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({Key? key}) : super(key: key);
@@ -24,9 +26,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   // This will store the delivery address passed from CartScreen
   String _deliveryAddress = '';
 
-  // Contact information
-  String _contactPhone = '+6281000000';
-  String _contactEmail = 'emailsample@example.com';
+  // Contact information - will be populated from user data
+  String _contactPhone = '';
+  String _contactEmail = '';
+  String _contactName = '';
 
   // Text controllers for editing
   final TextEditingController _addressController = TextEditingController();
@@ -43,8 +46,36 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   @override
   void initState() {
     super.initState();
-    _phoneController.text = _contactPhone;
-    _emailController.text = _contactEmail;
+    // Initialize contact info from user data
+    _initializeUserContactInfo();
+  }
+
+  void _initializeUserContactInfo() {
+    // Get user data from AuthProvider
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final user = authProvider.user;
+
+    if (user != null) {
+      setState(() {
+        _contactName = user.nama;
+        _contactPhone = user.telepon;
+        _contactEmail = user.email;
+      });
+
+      // Set controllers with user data
+      _phoneController.text = user.telepon;
+      _emailController.text = user.email;
+    } else {
+      // Fallback values if user is not logged in
+      setState(() {
+        _contactPhone = '+6281000000';
+        _contactEmail = 'emailsample@example.com';
+        _contactName = 'Guest User';
+      });
+
+      _phoneController.text = _contactPhone;
+      _emailController.text = _contactEmail;
+    }
   }
 
   @override
@@ -1369,7 +1400,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         child: Text(
           item.name.substring(0, 1).toUpperCase(),
           style: GoogleFonts.poppins(
-            
+
             fontSize: 20,
             fontWeight: FontWeight.bold,
             color: Colors.black54,

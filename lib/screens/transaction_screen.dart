@@ -2,15 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/transaction_service.dart';
 import '../screens/main_screen.dart';
-import '../screens/tracking_screen.dart'; // TAMBAHAN BARU
+import '../screens/tracking_screen.dart';
 
 class TransactionScreen extends StatefulWidget {
-  // Parameter tambahan untuk mengontrol visibilitas tombol back
   final bool showBackButton;
 
   const TransactionScreen({
     Key? key,
-    this.showBackButton = false  // Default false, hanya tampil setelah checkout
+    this.showBackButton = false,
   }) : super(key: key);
 
   @override
@@ -18,11 +17,22 @@ class TransactionScreen extends StatefulWidget {
 }
 
 class _TransactionScreenState extends State<TransactionScreen> {
-  // Get transactions from service
   final TransactionService _transactionService = TransactionService();
-
-  // Track selected filter
   int _selectedFilterIndex = 0;
+
+  // Define what status to show for each filter
+  String _getStatusForFilter() {
+    switch (_selectedFilterIndex) {
+      case 0: // Semua
+        return 'Dalam Perjalanan';
+      case 1: // Sedang Proses
+        return 'Sedang Diproses';
+      case 2: // Selesai
+        return 'Dikirim';
+      default:
+        return 'Dalam Perjalanan';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -128,12 +138,15 @@ class _TransactionScreenState extends State<TransactionScreen> {
                       itemCount: transactions.length,
                       itemBuilder: (context, index) {
                         final transaction = transactions[index];
+                        final status = _getStatusForFilter();
+
                         return _buildModernTransactionCard(
                           context,
                           image: transaction.image,
                           description: transaction.description,
                           orderId: transaction.id,
                           date: transaction.date,
+                          status: status,
                           primaryColor: primaryColor,
                         );
                       },
@@ -156,11 +169,16 @@ class _TransactionScreenState extends State<TransactionScreen> {
           _selectedFilterIndex = index;
         });
       },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
           color: _selectedFilterIndex == index ? primaryColor : Colors.white,
           borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: _selectedFilterIndex == index ? primaryColor : Colors.grey[300]!,
+            width: 1,
+          ),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.05),
@@ -174,7 +192,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
           label,
           style: GoogleFonts.poppins(
             color: _selectedFilterIndex == index ? Colors.white : Colors.black87,
-            fontSize: 12,
+            fontSize: 13,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -184,11 +202,21 @@ class _TransactionScreenState extends State<TransactionScreen> {
 
   // Empty transaction view
   Widget _buildEmptyTransactionView(BuildContext context, Color primaryColor) {
+    String emptyMessage = 'No Orders Yet';
+    String emptyDescription = 'Complete your first payment\nto see your orders here';
+
+    if (_selectedFilterIndex == 1) {
+      emptyMessage = 'No Processing Orders';
+      emptyDescription = 'All your orders have been\ncompleted or delivered';
+    } else if (_selectedFilterIndex == 2) {
+      emptyMessage = 'No Completed Orders';
+      emptyDescription = 'Complete some orders to\nsee them here';
+    }
+
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Icon transaksi kosong
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
@@ -196,15 +224,18 @@ class _TransactionScreenState extends State<TransactionScreen> {
               shape: BoxShape.circle,
             ),
             child: Icon(
-              Icons.receipt_long_rounded,
+              _selectedFilterIndex == 1
+                  ? Icons.hourglass_empty_rounded
+                  : _selectedFilterIndex == 2
+                  ? Icons.check_circle_outline_rounded
+                  : Icons.receipt_long_rounded,
               size: 64,
               color: primaryColor,
             ),
           ),
           const SizedBox(height: 24),
-          // Pesan
           Text(
-            'No Orders Yet',
+            emptyMessage,
             style: GoogleFonts.poppins(
               color: Colors.black87,
               fontSize: 18,
@@ -213,7 +244,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Complete your first payment\nto see your orders here',
+            emptyDescription,
             textAlign: TextAlign.center,
             style: GoogleFonts.poppins(
               color: Colors.grey[600],
@@ -222,75 +253,76 @@ class _TransactionScreenState extends State<TransactionScreen> {
             ),
           ),
           const SizedBox(height: 32),
-          // Tombol mulai belanja
-          Container(
-            height: 50,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [primaryColor, primaryColor.withOpacity(0.8)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(25),
-              boxShadow: [
-                BoxShadow(
-                  color: primaryColor.withOpacity(0.3),
-                  blurRadius: 8,
-                  spreadRadius: 0,
-                  offset: const Offset(0, 4),
+          if (_selectedFilterIndex == 0) ...[
+            Container(
+              height: 50,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [primaryColor, primaryColor.withOpacity(0.8)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
-              ],
+                borderRadius: BorderRadius.circular(25),
+                boxShadow: [
+                  BoxShadow(
+                    color: primaryColor.withOpacity(0.3),
+                    blurRadius: 8,
+                    spreadRadius: 0,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (context) => MainScreen()),
+                          (route) => false);
+                },
+                icon: const Icon(Icons.shopping_bag_outlined, color: Colors.white),
+                label: Text(
+                  'Start Shopping',
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 15,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.transparent,
+                  shadowColor: Colors.transparent,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                ),
+              ),
             ),
-            child: ElevatedButton.icon(
-              onPressed: () {
-                Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(builder: (context) => MainScreen()),
-                        (route) => false
-                );
-              },
-              icon: const Icon(Icons.shopping_bag_outlined, color: Colors.white),
-              label: Text(
-                'Start Shopping',
-                style: GoogleFonts.poppins(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 15,
-                ),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.transparent,
-                shadowColor: Colors.transparent,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(25),
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-              ),
-            ),
-          ),
+          ],
         ],
       ),
     );
   }
 
-  // Modern transaction card - UPDATED with real-time tracking
-// Modern transaction card - FIXED with simple conditional buttons
+  // Modern transaction card with status based on filter
   Widget _buildModernTransactionCard(
       BuildContext context, {
         required String image,
         required String description,
         required String orderId,
         required String date,
+        required String status,
         required Color primaryColor,
       }) {
-    // Get status randomly for demo purposes
-    final statuses = ['Dikirim', 'Sedang Diproses', 'Dalam Perjalanan'];
-    final status = statuses[DateTime.now().microsecond % 3];
+    // Status color based on current status
     final statusColor = status == 'Dikirim'
         ? Colors.green[700]
         : status == 'Sedang Diproses'
         ? Colors.orange[700]
-        : primaryColor;
+        : primaryColor; // Dalam Perjalanan
+
+    final isDelivered = status == 'Dikirim';
+    final isProcessing = status == 'Sedang Diproses' || status == 'Dalam Perjalanan';
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -360,11 +392,14 @@ class _TransactionScreenState extends State<TransactionScreen> {
                       return Container(
                         width: 80,
                         height: 80,
-                        color: Colors.grey.shade200,
+                        decoration: BoxDecoration(
+                          color: primaryColor.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                         child: Icon(
-                          Icons.image_not_supported_outlined,
-                          color: Colors.grey[400],
-                          size: 24,
+                          Icons.shopping_bag_outlined,
+                          color: primaryColor,
+                          size: 32,
                         ),
                       );
                     },
@@ -402,7 +437,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 // Live indicator for active orders
-                                if (status != 'Dikirim') ...[
+                                if (!isDelivered) ...[
                                   Container(
                                     width: 6,
                                     height: 6,
@@ -434,35 +469,62 @@ class _TransactionScreenState extends State<TransactionScreen> {
 
             const SizedBox(height: 16),
 
-            // Action buttons - SIMPLE FIX: Conditional layout based on status
-            if (status == 'Dikirim') ...[
-              // Only show review button for delivered orders
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    _showReviewPopup(context, primaryColor);
-                  },
-                  icon: const Icon(Icons.star, size: 16),
-                  label: Text(
-                    'Beri Ulasan',
-                    style: GoogleFonts.poppins(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w500,
-                      fontSize: 13,
+            // Action buttons based on filter selection
+            if (isDelivered) ...[
+              // For "Selesai" filter: Show review and contact courier buttons (horizontal)
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        _showReviewPopup(context, primaryColor);
+                      },
+                      icon: const Icon(Icons.star, size: 16),
+                      label: Text(
+                        'Beri Ulasan',
+                        style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 13,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: primaryColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                      ),
                     ),
                   ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryColor,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        _showCourierContactPopup(context, primaryColor);
+                      },
+                      icon: const Icon(Icons.phone, size: 16),
+                      label: Text(
+                        'Hubungi Kurir',
+                        style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 13,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange[600],
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                      ),
                     ),
-                    padding: const EdgeInsets.symmetric(vertical: 12),
                   ),
-                ),
+                ],
               ),
-            ] else ...[
-              // Show both tracking and contact buttons for active orders
+            ] else if (isProcessing) ...[
+              // For "Semua" and "Sedang Proses" filters: Show tracking and contact courier buttons
               Row(
                 children: [
                   Expanded(
@@ -529,7 +591,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
     );
   }
 
-  // NEW: Courier contact popup
+  // Courier contact popup
   void _showCourierContactPopup(BuildContext context, Color primaryColor) {
     showDialog(
       context: context,
@@ -565,7 +627,6 @@ class _TransactionScreenState extends State<TransactionScreen> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Courier info
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -669,7 +730,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
     );
   }
 
-  // Method untuk menampilkan popup ulasan
+  // Review popup
   void _showReviewPopup(BuildContext context, Color primaryColor) {
     final TextEditingController reviewController = TextEditingController();
     double rating = 0;
@@ -692,7 +753,6 @@ class _TransactionScreenState extends State<TransactionScreen> {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Rating stars
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: List.generate(5, (index) {
@@ -711,7 +771,6 @@ class _TransactionScreenState extends State<TransactionScreen> {
                 }),
               ),
               const SizedBox(height: 16),
-              // Review text field
               TextField(
                 controller: reviewController,
                 maxLines: 3,
@@ -742,7 +801,6 @@ class _TransactionScreenState extends State<TransactionScreen> {
             ElevatedButton(
               onPressed: rating > 0
                   ? () {
-                // Simpan ulasan
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(

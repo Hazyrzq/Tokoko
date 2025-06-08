@@ -6,6 +6,9 @@ import 'package:provider/provider.dart';
 import '../services/cart_service.dart';
 import '../models/cart_item.dart';
 import '../providers/location_provider.dart';
+import '../widgets/map_widget.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:flutter_map/flutter_map.dart';g
 
 class CartScreen extends StatefulWidget {
   const CartScreen({Key? key}) : super(key: key);
@@ -19,6 +22,17 @@ class _CartScreenState extends State<CartScreen> {
   // Start with empty address
   String deliveryAddress = '';
   final TextEditingController _addressController = TextEditingController();
+  LatLng? _selectedLocation; // Add this line after existing variables
+
+  MapController? _mapController;
+  final TextEditingController _searchController = TextEditingController();
+  bool _isSearching = false;
+
+// Animation controllers (tambahkan jika ingin animasi)
+  late AnimationController _fadeController;
+  late AnimationController _slideController;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
 
   @override
   void initState() {
@@ -30,6 +44,7 @@ class _CartScreenState extends State<CartScreen> {
       final locationProvider = Provider.of<LocationProvider>(context, listen: false);
       locationProvider.initializeLocationService();
     });
+
   }
 
   // Method to load saved address from SharedPreferences
@@ -49,6 +64,9 @@ class _CartScreenState extends State<CartScreen> {
   @override
   void dispose() {
     _addressController.dispose();
+    _fadeController.dispose();
+    _slideController.dispose();
+    _searchController.dispose(); // Add this line
     super.dispose();
   }
 
@@ -231,7 +249,7 @@ class _CartScreenState extends State<CartScreen> {
                                   const SizedBox(height: 4),
                                   deliveryAddress.isEmpty
                                       ? Text(
-                                    'Please add a delivery address',
+                                    'Please select a delivery location',
                                     style: GoogleFonts.poppins(
                                       fontSize: 12,
                                       color: Colors.grey[600],
@@ -257,14 +275,14 @@ class _CartScreenState extends State<CartScreen> {
                                   shape: BoxShape.circle,
                                 ),
                                 child: Icon(
-                                  deliveryAddress.isEmpty ? Icons.add : Icons.edit_outlined,
+                                  deliveryAddress.isEmpty ? Icons.map : Icons.edit_location_outlined,
                                   color: primaryColor,
                                   size: 16,
                                 ),
                               ),
                               onPressed: () {
                                 // Show dialog to add/edit address with GPS option
-                                _showEditAddressDialog(context, primaryColor);
+                                _showMapDialog(context, primaryColor);
                               },
                               constraints: const BoxConstraints(),
                               padding: EdgeInsets.zero,
@@ -294,180 +312,254 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   // Updated method to show edit address dialog with GPS integration
-  void _showEditAddressDialog(BuildContext context, Color primaryColor) {
-    // Set the initial value of the text controller to current address
-    _addressController.text = deliveryAddress;
-
+  void _showMapDialog(BuildContext context, Color primaryColor) {
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (context) => Consumer<LocationProvider>(
         builder: (context, locationProvider, child) {
-          return AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            title: Text(
-              deliveryAddress.isEmpty ? 'Add Delivery Address' : 'Edit Delivery Address',
-              style: GoogleFonts.poppins(
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-                color: Colors.black87,
-              ),
-            ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // GPS Button
-                Container(
-                  width: double.infinity,
-                  margin: const EdgeInsets.only(bottom: 16),
-                  child: ElevatedButton.icon(
-                    onPressed: locationProvider.isLoading
-                        ? null
-                        : () async {
-                      // Get current location
-                      bool success = await locationProvider.getCurrentLocation();
-                      if (success && locationProvider.currentAddress != null) {
-                        setState(() {
-                          _addressController.text = locationProvider.currentAddress!;
-                        });
-                      }
-                    },
-                    icon: locationProvider.isLoading
-                        ? SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                      ),
-                    )
-                        : Icon(Icons.my_location, size: 18),
-                    label: Text(
-                      locationProvider.isLoading
-                          ? 'Getting Location...'
-                          : '📍 Use Current Location',
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: primaryColor.withOpacity(0.1),
-                      foregroundColor: primaryColor,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        side: BorderSide(color: primaryColor.withOpacity(0.3)),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                    ),
-                  ),
-                ),
-
-                // Error message if GPS fails
-                if (locationProvider.errorMessage != null)
+          return Dialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            insetPadding: const EdgeInsets.all(20),
+            child: Container(
+              width: double.maxFinite,
+              height: MediaQuery.of(context).size.height * 0.8,
+              decoration: BoxDecoration(borderRadius: BorderRadius.circular(20)),
+              child: Column(
+                children: [
+                  // Header
                   Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(12),
-                    margin: const EdgeInsets.only(bottom: 16),
+                    padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: Colors.red[50],
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.red[200]!),
+                      color: primaryColor.withOpacity(0.1),
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(20),
+                        topRight: Radius.circular(20),
+                      ),
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.error_outline, color: Colors.red[600], size: 16),
-                        const SizedBox(width: 8),
+                        Icon(Icons.map_outlined, color: primaryColor, size: 24),
+                        const SizedBox(width: 12),
                         Expanded(
-                          child: Text(
-                            locationProvider.errorMessage!,
-                            style: GoogleFonts.poppins(
-                              fontSize: 12,
-                              color: Colors.red[600],
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Select Delivery Location', style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 18)),
+                              Text('Tap on the map to select your delivery address', style: GoogleFonts.poppins(fontSize: 13, color: Colors.grey[600])),
+                            ],
+                          ),
+                        ),
+                        IconButton(onPressed: () => Navigator.pop(context), icon: Icon(Icons.close, color: Colors.grey[600])),
+                      ],
+                    ),
+                  ),
+
+                  // Search Box - ADD THIS SECTION
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                controller: _searchController,
+                                decoration: InputDecoration(
+                                  hintText: 'Type address (e.g., Jakarta, Bandung, Surabaya)',
+                                  hintStyle: GoogleFonts.poppins(fontSize: 13, color: Colors.grey[500]),
+                                  prefixIcon: Icon(Icons.search, color: primaryColor, size: 20),
+                                  suffixIcon: _searchController.text.isNotEmpty
+                                      ? IconButton(
+                                    icon: Icon(Icons.clear, color: Colors.grey[400], size: 18),
+                                    onPressed: () {
+                                      _searchController.clear();
+                                      setState(() {});
+                                    },
+                                  )
+                                      : null,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(color: Colors.grey[300]!),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(color: primaryColor, width: 2),
+                                  ),
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                ),
+                                style: GoogleFonts.poppins(fontSize: 14),
+                                onChanged: (value) => setState(() {}),
+                                onSubmitted: (value) => _searchLocation(value, locationProvider),
+                              ),
                             ),
+                            const SizedBox(width: 12),
+                            Container(
+                              height: 48,
+                              width: 48,
+                              child: ElevatedButton(
+                                onPressed: _isSearching || _searchController.text.trim().isEmpty
+                                    ? null
+                                    : () => _searchLocation(_searchController.text, locationProvider),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: primaryColor,
+                                  foregroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                  padding: EdgeInsets.zero,
+                                ),
+                                child: _isSearching
+                                    ? SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                  ),
+                                )
+                                    : Icon(Icons.search, size: 20),
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        // Quick location suggestions
+                        const SizedBox(height: 12),
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: [
+                              _buildQuickLocationChip('Jakarta', primaryColor, locationProvider),
+                              _buildQuickLocationChip('Bandung', primaryColor, locationProvider),
+                              _buildQuickLocationChip('Surabaya', primaryColor, locationProvider),
+                              _buildQuickLocationChip('Yogyakarta', primaryColor, locationProvider),
+                              _buildQuickLocationChip('Medan', primaryColor, locationProvider),
+                              _buildQuickLocationChip('Makassar', primaryColor, locationProvider),
+                            ],
                           ),
                         ),
                       ],
                     ),
                   ),
 
-                // Manual address input
-                TextField(
-                  controller: _addressController,
-                  maxLines: 3,
-                  decoration: InputDecoration(
-                    hintText: 'Enter your delivery address',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: Colors.grey[300]!),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: primaryColor, width: 2),
-                    ),
-                    contentPadding: const EdgeInsets.all(16),
-                  ),
-                  style: GoogleFonts.poppins(
-                    fontSize: 14,
-                    color: Colors.black87,
-                  ),
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  // Clear any errors when closing
-                  locationProvider.clearError();
-                  Navigator.pop(context);
-                },
-                child: Text(
-                  'Cancel',
-                  style: GoogleFonts.poppins(
-                    color: Colors.grey[600],
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-              TextButton(
-                onPressed: () {
-                  // Update and save the address
-                  final newAddress = _addressController.text;
-                  if (newAddress.trim().isNotEmpty) {
-                    setState(() {
-                      deliveryAddress = newAddress;
-                    });
-                    // Save to SharedPreferences to persist
-                    _saveAddress(newAddress);
-                    // Clear any errors
-                    locationProvider.clearError();
-                    Navigator.pop(context);
-                  } else {
-                    // Show error if address is empty
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          'Please enter a delivery address',
-                          style: GoogleFonts.poppins(),
-                        ),
-                        backgroundColor: Colors.red[400],
+                  // Map
+                  Expanded(
+                    child: Container(
+                      margin: const EdgeInsets.all(16),
+                      child: MapWidget(
+                        height: double.infinity,
+                        showCurrentLocation: true,
+                        initialLocation: _selectedLocation,
+                        onLocationSelected: (latLng) async {
+                          _selectedLocation = latLng;
+                          String? address = await locationProvider.getAddressFromLatLng(latLng);
+
+                          if (address != null) {
+                            setState(() { deliveryAddress = address; });
+                            _saveAddress(address);
+                          } else {
+                            String coordAddress = '📍 ${latLng.latitude.toStringAsFixed(6)}, ${latLng.longitude.toStringAsFixed(6)}';
+                            setState(() { deliveryAddress = coordAddress; });
+                            _saveAddress(coordAddress);
+                          }
+                        },
+                        onMapReady: (MapController controller) {
+                          _mapController = controller;
+                        },
                       ),
-                    );
-                  }
-                },
-                child: Text(
-                  'Save',
-                  style: GoogleFonts.poppins(
-                    color: primaryColor,
-                    fontWeight: FontWeight.w600,
+                    ),
                   ),
+
+                  // Bottom buttons
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        // GPS Button
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            onPressed: locationProvider.isLoading ? null : () async {
+                              bool success = await locationProvider.getCurrentLocation();
+                              if (success && locationProvider.currentLatLng != null) {
+                                _selectedLocation = locationProvider.currentLatLng;
+                                if (locationProvider.currentAddress != null) {
+                                  setState(() { deliveryAddress = locationProvider.currentAddress!; });
+                                  _saveAddress(locationProvider.currentAddress!);
+                                  Navigator.pop(context);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text('Current location selected'), backgroundColor: Colors.green[600]),
+                                  );
+                                }
+                              }
+                            },
+                            icon: locationProvider.isLoading
+                                ? SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.white)))
+                                : Icon(Icons.my_location, size: 18),
+                            label: Text(locationProvider.isLoading ? 'Getting Location...' : '📍 Use My Current Location'),
+                            style: ElevatedButton.styleFrom(backgroundColor: primaryColor, foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)), padding: const EdgeInsets.symmetric(vertical: 14)),
+                          ),
+                        ),
+
+                        if (_selectedLocation != null || deliveryAddress.isNotEmpty) ...[
+                          const SizedBox(height: 12),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton.icon(
+                              onPressed: () {
+                                Navigator.pop(context);
+                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Location confirmed'), backgroundColor: Colors.green[600]));
+                              },
+                              icon: const Icon(Icons.check_circle_outline, size: 18),
+                              label: Text('Confirm Location'),
+                              style: ElevatedButton.styleFrom(backgroundColor: Colors.green[600], foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)), padding: const EdgeInsets.symmetric(vertical: 14)),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildQuickLocationChip(String city, Color primaryColor, LocationProvider locationProvider) {
+    return Container(
+      margin: const EdgeInsets.only(right: 8),
+      child: InkWell(
+        onTap: () {
+          setState(() {
+            _searchController.text = city;
+          });
+          _searchLocation(city, locationProvider);
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: primaryColor.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: primaryColor.withOpacity(0.3)),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.location_city, size: 14, color: primaryColor),
+              const SizedBox(width: 4),
+              Text(
+                city,
+                style: GoogleFonts.poppins(
+                  fontSize: 12,
+                  color: primaryColor,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ],
-          );
-        },
+          ),
+        ),
       ),
     );
   }
@@ -553,6 +645,85 @@ class _CartScreenState extends State<CartScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _searchLocation(String address, LocationProvider locationProvider) async {
+    if (address.trim().isEmpty) return;
+
+    setState(() {
+      _isSearching = true;
+    });
+
+    try {
+      LatLng? coordinates = await locationProvider.getLatLngFromAddress(address);
+
+      if (coordinates != null) {
+        // Set location dan trigger map update
+        setState(() {
+          _selectedLocation = coordinates;
+        });
+
+        // PENTING: Trigger map controller untuk pindah ke lokasi baru
+        _mapController?.move(coordinates, 15.0);
+
+        // Get detailed address from coordinates
+        String? detailedAddress = await locationProvider.getAddressFromLatLng(coordinates);
+
+        setState(() {
+          deliveryAddress = detailedAddress ?? address;
+        });
+        _saveAddress(deliveryAddress);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.location_on, color: Colors.white, size: 20),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Location found: ${detailedAddress ?? address}',
+                    style: GoogleFonts.poppins(fontSize: 13),
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.green[600],
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.error_outline, color: Colors.white, size: 20),
+                const SizedBox(width: 8),
+                Text(
+                  'Location not found. Please try a different address.',
+                  style: GoogleFonts.poppins(fontSize: 13),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.red[600],
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error searching location: $e'),
+          backgroundColor: Colors.red[600],
+        ),
+      );
+    } finally {
+      setState(() {
+        _isSearching = false;
+      });
+    }
   }
 
   // UPDATED: Cart items with enhanced price display showing multiplication

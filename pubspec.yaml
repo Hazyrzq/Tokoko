@@ -46,7 +46,8 @@ dependencies:
   # GPS & Location dependencies - ADDED FOR GPS FUNCTIONALITY
   geolocator: ^10.1.0          # For GPS coordinates
   geocoding: ^2.1.1            # For address conversion
-  google_maps_flutter: ^2.5.0  # For map display
+  flutter_map: ^8.1.1
+  latlong2: ^0.9.1
   permission_handler: ^11.0.1  # For permissions
 
   # The following adds the Cupertino Icons font to your application.

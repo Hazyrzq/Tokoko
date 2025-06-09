@@ -8,7 +8,7 @@ import '../models/cart_item.dart';
 import '../providers/location_provider.dart';
 import '../widgets/map_widget.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:flutter_map/flutter_map.dart';g
+import 'package:flutter_map/flutter_map.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({Key? key}) : super(key: key);

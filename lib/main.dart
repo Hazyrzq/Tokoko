@@ -7,7 +7,7 @@ import 'firebase_options.dart';
 // Import Providers
 import 'providers/cart_provider.dart';
 import 'providers/profile_provider.dart';
-import 'providers/auth_provider.dart'; // Provider baru untuk authentication
+import 'providers/auth_provider.dart';
 import 'providers/location_provider.dart';
 
 // Import semua screen
@@ -32,10 +32,8 @@ import 'screens/personalcare_category_screen.dart';
 import 'screens/kitchen_ingredients_category_screen.dart';
 
 void main() async {
-  // Pastikan Flutter binding sudah diinisialisasi
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Inisialisasi Firebase
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -50,7 +48,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (context) => AuthProvider()), // Provider untuk auth
+        ChangeNotifierProvider(create: (context) => AuthProvider()),
         ChangeNotifierProvider(create: (context) => CartProvider()),
         ChangeNotifierProvider(create: (context) => ProfileProvider()),
         ChangeNotifierProvider(create: (_) => LocationProvider()),
@@ -88,9 +86,11 @@ class MyApp extends StatelessWidget {
             ),
           ),
         ),
-        initialRoute: '/',
+        // UBAH: Start langsung dengan splash screen
+        initialRoute: '/splash',
         routes: {
-          '/': (context) => const AuthWrapper(), // Wrapper untuk cek authentication
+          '/splash': (context) => const SplashScreen(),
+          '/': (context) => const AuthWrapper(),
           '/login': (context) => const LoginScreen(),
           '/register': (context) => const RegisterScreen(),
           '/main': (context) => const MainScreen(),
@@ -115,7 +115,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// Wrapper untuk mengecek status authentication
+// DIPERBAIKI: AuthWrapper yang tidak tergantung splash screen
 class AuthWrapper extends StatelessWidget {
   const AuthWrapper({Key? key}) : super(key: key);
 
@@ -123,15 +123,37 @@ class AuthWrapper extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<AuthProvider>(
       builder: (context, authProvider, child) {
-        // Show loading while checking auth state
+        // Jika masih loading, tampilkan loading indicator
         if (authProvider.isLoading) {
-          return const SplashScreen();
+          return Scaffold(
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      const Color(0xFF2D7BEE),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Checking authentication...',
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
         }
 
-        // Show main app if user is logged in, otherwise show login
-        if (authProvider.user != null) {
+        // Jika user sudah login, ke main screen
+        if (authProvider.isAuthenticated) {
           return const MainScreen();
         } else {
+          // Jika belum login, ke login screen
           return const LoginScreen();
         }
       },
